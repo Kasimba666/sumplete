@@ -1,61 +1,87 @@
 <template>
-  <div class="home">
-    <div class="control">
-      <label for="field_size">Размер поля:</label>
-      <input id="field_size"
-             style="width: 40px;"
-             min="3"
-             max="9"
-             v-model.number="field_size" type="number">
-      <button @click="createNewGame(field_size)">Создать</button>
-    </div>
-
-    <div class="main">
-      <div class="field-all">
-        <div class="field-cell">
-          <div class="horizontal"
-              v-for="hor in field">
-            <div class="cell"
-                 v-for="i in hor">
-              {{ i.value }}
-            </div>
-          </div>
+    <div class="home">
+        <div class="control">
+            <label for="field_size">Размер поля:</label>
+            <input id="field_size"
+                   style="width: 40px;"
+                   min="3"
+                   max="9"
+                   v-model.number="field_size" type="number">
+            <button @click="createNewGame(field_size)">Создать</button>
         </div>
-      </div>
-    </div> {{field}}
-  </div>
+
+        <div class="main">
+            <div class="field-all">
+                <div class="field-cell">
+                    <div class="horizontal"
+                         v-for="(hor, j) of arrayField"  :key="j">
+                        <div class="cell"
+                             v-for="(cell, i) of hor" :key="i"
+                             @click="cellClick(cell)">
+                            {{ cell.value }}
+                        </div>
+                        <div class="cell-sum">
+                            {{ arraySumAliveHorizontal[j] }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <pre>{{ arrayField }}</pre>
+    </div>
 
 </template>
 
 <script>
 
+const cell = JSON.stringify({value: null, isAlive: null, status: null});
 export default {
-  name: 'HomeView',
-  components: {},
-  data() {
-    return {
-      field_size: 4,
-      cell: {value: null, isAlive: null, mark: null},
-      field: [],
-
-    }
-  },
-  computed: {},
-  methods: {
-    createNewGame: function (size) {
-      this.field = [];
-      let i, j;
-      let horizontal = [];
-      for (j = 0; j < size; j++) {
-        horizontal = [];
-        for (i = 0; i < size; i++) {
-          horizontal.push({value: (Math.trunc(Math.random() * 8) + 1), isAlive: (Math.trunc(Math.random() + 0.5)), mark: 0})
+    name: 'HomeView',
+    components: {},
+    data() {
+        return {
+            field_size: 4,
+            arrayField: [],
+            arraySumAliveHorizontal: [],
+            arraySumAliveVertical: [],
         }
-        this.field.push(horizontal);
-      }
     },
+    computed: {},
+    methods: {
+        cellClick(cell){
+            cell.status++;
+            cell.status %= 3;
+            this.recalc();
+        },
+        recalc(){
+            console.log('recalc');
+        },
+        createNewGame: function (size) {
+            this.arrayField = [];
+            this.arraySumAliveHorizontal = [];
+            this.arraySumAliveVertical = [];
+            let i, j;
+            let horizontal = [];
+            let sumHorizontal = 0;
+            for (j = 0; j < size; j++) {
+                horizontal = [];
+                sumHorizontal = 0;
+                for (i = 0; i < size; i++) {
+                    horizontal.push({
+                        value: (Math.trunc(Math.random() * 9) + 1),
+                        isAlive: (Math.random() < 0.5),
+                        status: 0
+                    });
+                    sumHorizontal += horizontal[i].value;
+                }
+                ;
 
-  },
+                this.arrayField.push(horizontal);
+                this.arraySumAliveHorizontal.push(sumHorizontal);
+            }
+        },
+
+    },
 }
 </script>
 
@@ -104,6 +130,10 @@ export default {
   height: 50px;
   border-right: 1px solid gray;
   border-bottom: 1px solid gray;
+}
+
+.cell-sum {
+
 }
 
 .button-control {
