@@ -1,5 +1,5 @@
 <template>
-  <div class="Home">
+  <div class="Sumplete">
     <div class="controls">
       <label for="field_size">Размер поля:</label>
       <input id="field_size"
@@ -63,12 +63,13 @@
 </template>
 
 <script>
+import BSResearch from '@/components/views/BSResearch.vue';
 
 const cell = JSON.stringify({value: null, isAlive: null, status: null});
 
 export default {
   name: 'Home',
-  components: {},
+  components: {BSResearch},
   data() {
     return {
       field_size: 4,
@@ -169,7 +170,7 @@ export default {
 
 <style lang="scss">
 
-.Home {
+.Sumplete {
   width: 100%;
   height: auto;
   padding: 20px 30px;

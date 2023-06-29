@@ -1,9 +1,10 @@
 <template>
   <div id="app">
-<!--    <nav>-->
-<!--      <router-link to="/">Home</router-link>-->
+    <nav>
+      <router-link :to="{name: 'Sumplete'}">Sumplete</router-link>|
+      <router-link :to="{name: 'BSResearch'}">BSResearch</router-link>
 
-<!--    </nav>-->
+    </nav>
     <router-view/>
   </div>
 </template>
@@ -31,3 +32,6 @@ nav {
   }
 }
 </style>
+<script setup>
+import BSResearch from "@/components/views/BSResearch.vue";
+</script>
