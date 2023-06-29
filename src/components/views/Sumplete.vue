@@ -14,11 +14,20 @@
         <div class="field-cell" :class="{success}">
           <div class="horizontal"
                v-for="(hor, j) of arrayField" :key="j">
-            <div class="cell" :class="[marks[cell.status], {isAlive:cell.isAlive}]"
+            <div class="cell" :class="[marks[cell.status], {alive:cell.isAlive},
+            {bordertopwin: success & (j==0)},
+            {borderbottomwin: success & (j==(field_size-1))},
+            {borderleftwin: success & (i==0)},
+            {borderrightwin: success & (i==(field_size-1))},
+            {bordertop: !success & (j==0)},
+            {borderleft: !success & (i==0)}
+            ]"
                  :style="{fontStyle: true ? 'normal':'italic', color: false ? 'gray':'black'}"
                  v-for="(cell, i) of hor" :key="i"
                  @click="cellClick(cell)">
-              {{ cell.value }}
+              <div :class="[signedmarks[cell.status]]">
+                {{ cell.value }}</div>
+
             </div>
             <div class="cell-alive-sum"
                  :style="{fontWeight:
@@ -69,7 +78,9 @@ export default {
       arraySumMarkedHorizontal: [],
       arraySumMarkedVertical: [],
       marks: ['', 'mark-no', 'mark-yes'],
-      isSuccess: false,
+      signedmarks: ['', 'signed-mark-no', 'signed-mark-yes'],
+
+      success: false,
     }
   },
   computed: {},
@@ -184,15 +195,15 @@ export default {
   }
 
   .field-cell {
-    width: 450px;
-    border-top: 1px solid gray;
-    border-left: 1px solid gray;
+    //width: 450px;
+    //border-top: 1px solid gray;
+    //border-left: 1px solid gray;
     display: flex;
     flex-flow: column;
     box-shadow: none;
 
     &.success {
-      box-shadow: 0 0 10px 3px limegreen;
+      box-shadow: 0 0 10px 3px transparent;
     }
   }
 
@@ -202,8 +213,10 @@ export default {
   }
 
   .cell {
+    position: relative;
     width: 50px;
     height: 50px;
+    //border: 1px solid gray;
     border-right: 1px solid gray;
     border-bottom: 1px solid gray;
     display: flex;
@@ -219,13 +232,47 @@ export default {
       background-color: hsla(120, 100%, 25%, .3);
     }
 
-    &.isAlive {
+    &.alive {
       font-weight: bold;
     }
 
     &:hover {
       box-shadow: 0 0 10px 3px lightgrey;
     }
+
+    &.bordertopwin {
+      border-top: 3px solid green;
+    }
+
+    &.borderbottomwin {
+      border-bottom: 3px solid green;
+    }
+
+    &.borderleftwin {
+      border-left: 3px solid green;
+    }
+
+    &.borderrightwin {
+      border-right: 3px solid green;
+    }
+
+    &.bordertop {
+      border-top: 1px solid gray;
+    }
+
+    &.borderleft {
+      border-left: 1px solid gray;
+    }
+  }
+
+  .signed-mark-yes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    wigth:  100%;
+    height: 100%;
+    border: 3px solid green;
+    border-radius: 20px;
   }
 
   .cell-alive-sum {
