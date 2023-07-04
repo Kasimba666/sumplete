@@ -1,75 +1,85 @@
 <template>
     <div class="BSResearch">
-        <h2>BSResearch</h2>
-
         <div class="container">
             <div class="row">
-                <div class="col-12 col-md-8 col-lg-6 mb-4">
-                    <div class="block -b1">col-12 col-md-8 col-lg-6
-                        <div class="container px-0">
-                            <div class="row">
-                                <div class="col-12 col-md-8 col-lg-6 mb-4">
-                                    <div class="block -b1">col-12 col-md-8 col-lg-6
-                                      <b-dropdown id="breeds" text="Порода собаки">
-                                        <b-dropdown-item>Пинчер</b-dropdown-item>
-                                        <b-dropdown-item>Корги</b-dropdown-item>
-                                        <b-dropdown-item active>Бигль</b-dropdown-item>
-                                      </b-dropdown>
-                                      <div>
-                                        <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
-                                          <b-dropdown-item>Первое действие</b-dropdown-item>
-                                          <b-dropdown-item>Второе действие</b-dropdown-item>
-                                          <b-dropdown-item>Третье действие</b-dropdown-item>
-                                          <b-dropdown-divider></b-dropdown-divider>
-                                          <b-dropdown-item active>Активное действие</b-dropdown-item>
-                                          <b-dropdown-item disabled>Отключенное действие</b-dropdown-item>
-                                        </b-dropdown>
-                                      </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 col-lg-3">
-                                    <div class="block -b2">col-12 col-md-4 col-lg-3</div>
-                                </div>
-                                <div class="d-none d-lg-block col-lg-3 offset-lg-2">
-                                    <div class="block -b3 ">d-none d-lg-block col-lg-3</div>
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4 mt-4 mb-4">
+                    <div class="block -b1">
+                        <b-dropdown
+                            class="breed-selector m-md-2"
+                            id="breeds"
+                            :text="(selected_breed || 'Порода собаки')"
+                            >
+                            <b-dropdown-item v-for="breed of type_breed" @click="ddClick(breed)">{{ breed }}</b-dropdown-item>
+                        </b-dropdown>
 
-                                </div>
-                                <div class="col-4">
-                                    <b-button @click="show=true" variant="primary">Show Modal</b-button>
-                                </div>
-                            </div>
-                        </div>
+                        <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
+                            <b-dropdown-item>Первое действие</b-dropdown-item>
+                            <b-dropdown-item>Второе действие</b-dropdown-item>
+                            <b-dropdown-item>Третье действие</b-dropdown-item>
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-item active>Активное действие</b-dropdown-item>
+                            <b-dropdown-item disabled>Отключенное действие</b-dropdown-item>
+                        </b-dropdown>
                     </div>
                 </div>
-                <div class="col-12 col-md-4 col-lg-3">
-                    <div class="block -b2">col-12 col-md-4 col-lg-
-                        <br>
-                        <button class="btn btn-primary">Ok!</button>
-                        <button class="btn btn-secondary">cancel</button>
-                        <button class="btn">cancel</button>
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4 mt-4 mb-4">
+                    <div class="block -b2">
+                        <b-button-group>
+                            <b-button variant="primary">ok</b-button>
+                            <b-button variant="secondary">cancel</b-button>
+                            <b-button variant="outline-info">info</b-button>
+                        </b-button-group>
+                        <b-button @click="show=true" variant="primary">show modal</b-button>
                     </div>
                 </div>
-                <div class="d-none d-lg-block col-lg-3 offset-lg-2">
-                    <div class="block -b3 ">d-none d-lg-block col-lg-3</div>
+                <div class="d-none d-lg-block col-lg-4 col-xl-4 mt-4 mb-4">
+                    <div class="block -b3 ">
+                        <b-form-checkbox-group
+                        id="checkbox"
+                        v-model="selected_breeds"
+                        :options = "type_breed"
+                        >
+
+                        </b-form-checkbox-group>
+                        {{selected_breeds}}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container-fluid">
+
             <div class="row">
-                <div class="col-12 col-md-8 col-lg-6 mb-4">
-                    <div class="block -b1">col-12 col-md-8 col-lg-6</div>
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4 mb-4">
+                    <div class="block -b1">
+
+                    </div>
                 </div>
-                <div class="col-12 col-md-4 col-lg-3">
-                    <div class="block -b2">col-12 col-md-4 col-lg-3</div>
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4">
+                    <div class="block -b2">
+
+                    </div>
                 </div>
-                <div class="d-none d-lg-block col-lg-3 offset-lg-2">
-                    <div class="block -b3 ">d-none d-lg-block col-lg-3</div>
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4">
+                    <div class="block -b3">
+
+                    </div>
                 </div>
             </div>
-        </div>
-        <div>
-            <b-button @click="show=true" variant="primary">Show Modal</b-button>
 
+
+        </div>
+        <!--        <div class="container-fluid">-->
+        <!--            <div class="row">-->
+        <!--                <div class="col-12 col-md-8 col-lg-6 mb-4">-->
+        <!--                    <div class="block -b1">col-12 col-md-8 col-lg-6</div>-->
+        <!--                </div>-->
+        <!--                <div class="col-12 col-md-4 col-lg-3">-->
+        <!--                    <div class="block -b2">col-12 col-md-4 col-lg-3</div>-->
+        <!--                </div>-->
+        <!--                <div class="d-none d-lg-block col-lg-3">-->
+        <!--                    <div class="block -b3 ">d-none d-lg-block col-lg-3</div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <div>
             <b-modal
                     v-model="show"
                     title="Modal Variants"
@@ -139,16 +149,18 @@
                 <template #modal-footer>
                     <div class="w-100">
                         <b-button
-                            variant="primary"
-                            size="sm"
-                            class="float-right"
-                            @click="show=false"
+                                variant="primary"
+                                size="sm"
+                                class="float-right"
+                                @click="show=false"
                         >
                             Close
                         </b-button>
-<!--                        <p class="float-left">-->
-                            Modal Footer Content: Lorem ipsum dolor sit amet, cons ectetur adi pisi cing elit. Ab accusamus at autem beatae cupiditate eligendi error expedita explicabo, fugit, inventore ipsa libero nam necessitatibus numquam, optio quos repellendus tempore voluptate.
-<!--                        </p>-->
+                        <!--                        <p class="float-left">-->
+                        Modal Footer Content: Lorem ipsum dolor sit amet, cons ectetur adi pisi cing elit. Ab accusamus
+                        at autem beatae cupiditate eligendi error expedita explicabo, fugit, inventore ipsa libero nam
+                        necessitatibus numquam, optio quos repellendus tempore voluptate.
+                        <!--                        </p>-->
                     </div>
                 </template>
             </b-modal>
@@ -157,6 +169,7 @@
 </template>
 
 <script>
+
 export default {
     name: "BSResearch",
     components: {},
@@ -172,11 +185,18 @@ export default {
             footerBgVariant: 'warning',
             footerTextVariant: 'dark',
 
-            type_breed: ['unknown', 'pinscher', 'pomeranian spitz', 'fox'],
+            type_breed: ['wolf', 'pinscher', 'pomeranian spitz', 'fox', 'pug'],
+            selected_breeds: [],
+            selected_breed: null,
+
         }
     },
     computed: {},
-    methods: {},
+    methods: {
+        ddClick(v){
+            this.selected_breed = v;
+        }
+    },
     mounted() {
     },
 }
@@ -191,7 +211,14 @@ export default {
   .container {
     border: 1px solid red;
   }
-
+    .breed-selector{
+        min-width: 200px;
+       &>.dropdown-toggle {
+           display: inline-flex;
+           justify-content: space-between;
+          align-items: center;
+       }
+    }
   .block {
     width: 100%;
     height: auto;
@@ -227,6 +254,10 @@ export default {
     &.-b7 {
       background-color: hsl(338, 78%, 91%);
     }
+  }
+
+  .btn {
+    margin-bottom: 10px;
   }
 }
 </style>
