@@ -27,7 +27,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['screen',q2wwwwwwwwwwwwwwwwwwwwwwwww 'screenBreakpoints']),
+        ...mapState(['screen','curColorScheme', 'screenBreakpoints']),
     },
     methods: {
         onResize() {

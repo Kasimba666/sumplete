@@ -9,7 +9,23 @@
                         <div class="container px-0">
                             <div class="row">
                                 <div class="col-12 col-md-8 col-lg-6 mb-4">
-                                    <div class="block -b1">col-12 col-md-8 col-lg-6</div>
+                                    <div class="block -b1">col-12 col-md-8 col-lg-6
+                                      <b-dropdown id="breeds" text="Порода собаки">
+                                        <b-dropdown-item>Пинчер</b-dropdown-item>
+                                        <b-dropdown-item>Корги</b-dropdown-item>
+                                        <b-dropdown-item active>Бигль</b-dropdown-item>
+                                      </b-dropdown>
+                                      <div>
+                                        <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
+                                          <b-dropdown-item>Первое действие</b-dropdown-item>
+                                          <b-dropdown-item>Второе действие</b-dropdown-item>
+                                          <b-dropdown-item>Третье действие</b-dropdown-item>
+                                          <b-dropdown-divider></b-dropdown-divider>
+                                          <b-dropdown-item active>Активное действие</b-dropdown-item>
+                                          <b-dropdown-item disabled>Отключенное действие</b-dropdown-item>
+                                        </b-dropdown>
+                                      </div>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-md-4 col-lg-3">
                                     <div class="block -b2">col-12 col-md-4 col-lg-3</div>
@@ -131,8 +147,7 @@
                             Close
                         </b-button>
 <!--                        <p class="float-left">-->
-                            Modal Footer Content?
-                        Lorem ipsum dolor sit amet, cons ectetur adi pisi cing elit. Ab accusamus at autem beatae cupiditate eligendi error expedita explicabo, fugit, inventore ipsa libero nam necessitatibus numquam, optio quos repellendus tempore voluptate.
+                            Modal Footer Content: Lorem ipsum dolor sit amet, cons ectetur adi pisi cing elit. Ab accusamus at autem beatae cupiditate eligendi error expedita explicabo, fugit, inventore ipsa libero nam necessitatibus numquam, optio quos repellendus tempore voluptate.
 <!--                        </p>-->
                     </div>
                 </template>
@@ -155,7 +170,9 @@ export default {
             bodyBgVariant: 'light',
             bodyTextVariant: 'dark',
             footerBgVariant: 'warning',
-            footerTextVariant: 'dark'
+            footerTextVariant: 'dark',
+
+            type_breed: ['unknown', 'pinscher', 'pomeranian spitz', 'fox'],
         }
     },
     computed: {},
