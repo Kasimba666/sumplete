@@ -1,54 +1,35 @@
 <template>
   <div class="Sumplete">
     <div class="container">
-      <div class="row">
-        <div class="col-12 col-md-12 col-lg-8 mb-2">
-          <div class="controls">
-            <label for="field_size">Размер поля:</label>
-            <b-input id="field_size"
-                   style="width: 50px;"
-                   min="3"
-                   max="9"
-                   size="sm"
-                   v-model.number="field_size" type="number"></b-input>
-            <b-button @click="createNewGame(field_size)"
-                      size="sm"
-            >Создать
-            </b-button>
-          </div>
-        </div>
-      </div>
 
       <div class="row">
         <div class="col-12 col-md-12 col-lg-8 mb-4">
-          <div class="main">
-            <div class="field-cell" :class="{success}">
+            <div id="GF" class="game-field">
               <div class="horizontal"
                    v-for="(hor, j) of arrayField" :key="j">
                 <div class="cell" :class="[marks[cell.status], {alive:cell.isAlive},
                                                 {bordertopwin: success & (j==0)},
-                                                {borderbottomwin: success & (j==(field_size-1))},
+                                                {borderbottomwin: success & (j==(fieldSizeY-1))},
                                                 {borderleftwin: success & (i==0)},
-                                                {borderrightwin: success & (i==(field_size-1))},
+                                                {borderrightwin: success & (i==(fieldSizeX-1))},
                                                 {bordertop: !success & (j==0)},
                                                 {borderleft: !success & (i==0)}
                                                 ]"
                      :style="{fontStyle: true ? 'normal':'italic',
                               color: false ? 'gray':'black',
-                              width: `${cellWidth}px`,
-                              height: `${cellHeight}px`}"
+                              width: `${cellSize}px`,
+                              height: `${cellSize}px`}"
                      v-for="(cell, i) of hor" :key="i"
                      @click="cellClick(cell)">
                   <div :class="[signedmarks[cell.status]]">
-                    {{ cell.value }}
-                  </div>
 
+                  </div>
+                    {{ cell.value }}
                 </div>
                 <div class="cell-alive-sum"
-                     :style="{fontWeight:
-                              arraySumAliveHorizontal[j] === arraySumMarkedHorizontal[j] ? 'bold':'normal',
-                              width: `${cellWidth}px`,
-                              height: `${cellHeight}px`
+                     :style="{fontWeight: arraySumAliveHorizontal[j] === arraySumMarkedHorizontal[j] ? 'bold':'normal',
+                              width: `${cellSize}px`,
+                              height: `${cellSize}px`
                 }">
                   {{ arraySumAliveHorizontal[j] }}
                 </div>
@@ -59,12 +40,11 @@
 
               <div class="horizontal">
                 <div class="cell-alive-sum"
-                     :style="{fontWeight:
-                               arraySumAliveVertical[i - 1] === arraySumMarkedVertical[i - 1] ? 'bold':'normal'
-                              width: `${cellWidth}px`,
-                              height: `${cellHeight}px`
+                     :style="{fontWeight: arraySumAliveVertical[i - 1] === arraySumMarkedVertical[i - 1] ? 'bold':'normal',
+                              width: `${cellSize}px`,
+                              height: `${cellSize}px`
                 }"
-                     v-for="i of this.field_size">
+                     v-for="i of this.fieldSizeX">
                   {{ arraySumAliveVertical[i - 1] }}
                 </div>
               </div>
@@ -76,15 +56,44 @@
               <!--                            </div>-->
               <!--                        </div>-->
             </div>
-          </div>
+
         </div>
       </div>
+
+        <div class="row">
+            <div class="col-12 col-md-12 col-lg-8 mb-2">
+                <div class="controls">
+                    Размер поля:
+                    <b-input id="fieldSizeX"
+                             style="width: 50px;"
+                             min="3"
+                             max="9"
+                             size="sm"
+                             v-model.number="fieldSizeX" type="number"></b-input>
+                    x
+                    <b-input id="fieldSizeY"
+                             style="width: 50px;"
+                             min="3"
+                             max="9"
+                             size="sm"
+                             v-model.number="fieldSizeY" type="number"></b-input>
+                    <b-button @click="createNewGame(fieldSizeX, fieldSizeY)"
+                              variant="primary"
+                              size="sm"
+                    >Создать
+                    </b-button>
+                    {{ screen.type }}, {{ gfWidth }}
+                </div>
+            </div>
+        </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import BSResearch from '@/components/views/BSResearch.vue';
+import {mapState} from "vuex";
 
 const cell = JSON.stringify({value: null, isAlive: null, status: null});
 
@@ -93,7 +102,8 @@ export default {
   components: {BSResearch},
   data() {
     return {
-      field_size: 4,
+      fieldSizeX: 4,
+      fieldSizeY: 4,
       cellWidth: 60,
       cellHeight: 60,
       arrayField: [],
@@ -107,22 +117,39 @@ export default {
       success: false,
     }
   },
-  computed: {},
+  computed: {
+      ...mapState(['screen', 'screenBreakpoints']),
+      gfWidth() {
+          // const w = window["GF"].clientWidth;
+          const w = window["GF"].clientWidth;
+          if (this.screen.type!=='xs') {
+              console.log(this.screen.type, w);
+          } else {
+              console.log(this.screen.width, w);
+          }
+          return w;
+      },
+      cellSize() {
+        return Math.floor(this.gfWidth/(this.fieldSizeX + 1));
+      },
+
+  },
   methods: {
     cellClick(cell) {
       cell.status++;
       cell.status %= 3;
-      this.recalc(this.field_size);
+      this.recalc();
     },
     recalc() {
-      const size = this.field_size;
+      const sizeX = this.fieldSizeX;
+      const sizeY = this.fieldSizeY;
       let i, j;
       let sumMarkedHorizontal = 0;
       let sumMarkedVertical = 0;
 
 
-      for (j = 0; j < size; j++) {
-        for (i = 0, sumMarkedHorizontal = 0; i < size; i++) {
+      for (j = 0; j < sizeY; j++) {
+        for (i = 0, sumMarkedHorizontal = 0; i < sizeX; i++) {
 
           if (this.arrayField[j][i].status !== 1) {
             sumMarkedHorizontal += this.arrayField[j][i].value;
@@ -132,8 +159,8 @@ export default {
         this.arraySumMarkedHorizontal[j] = sumMarkedHorizontal;
       }
 
-      for (i = 0; i < size; i++) {
-        for (j = 0, sumMarkedVertical = 0; j < size; j++) {
+      for (i = 0; i < sizeX; i++) {
+        for (j = 0, sumMarkedVertical = 0; j < sizeY; j++) {
           if (this.arrayField[j][i].status !== 1) {
             sumMarkedVertical += this.arrayField[j][i].value;
           }
@@ -143,7 +170,7 @@ export default {
       this.success = (JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
           (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical));
     },
-    createNewGame: function (size) {
+    createNewGame: function (sizeX, sizeY) {
       this.arrayField = [];
       this.arraySumAliveHorizontal = [];
       this.arraySumAliveVertical = [];
@@ -154,10 +181,10 @@ export default {
       let sumAliveHorizontal = 0;
       let sumAliveVertical = 0;
 
-      for (j = 0; j < size; j++) {
+      for (j = 0; j < sizeY; j++) {
         horizontal = [];
         sumAliveHorizontal = 0;
-        for (i = 0; i < size; i++) {
+        for (i = 0; i < sizeX; i++) {
           horizontal.push({
             value: (Math.trunc(Math.random() * 9) + 1),
             isAlive: (Math.random() < 0.5),
@@ -171,9 +198,9 @@ export default {
         this.arraySumAliveHorizontal.push(sumAliveHorizontal);
         this.arraySumMarkedHorizontal.push(0);
       }
-      for (i = 0; i < size; i++) {
+      for (i = 0; i < sizeX; i++) {
         sumAliveVertical = 0;
-        for (j = 0; j < size; j++) {
+        for (j = 0; j < sizeY; j++) {
           if (this.arrayField[j][i].isAlive) {
             sumAliveVertical += this.arrayField[j][i].value
           }
@@ -188,8 +215,10 @@ export default {
     },
 
   },
+  watcher: {},
 }
 </script>
+
 
 <style lang="scss">
 
@@ -198,10 +227,8 @@ export default {
   height: auto;
   padding: 20px 30px;
 
-  .common {
-    border-style: solid;
-    border-color: gray;
-    border-radius: 20px;
+  .container {
+    //border: 1px solid red;
   }
 
   .controls {
@@ -216,24 +243,26 @@ export default {
     background-color: hsl(210, 78%, 91%);
   }
 
-  .main {
-    height: auto;
-    width: auto;
+  .game-field {
+    height: 100%;
+    width: 100%;
+    border: 1px solid gray;
+
   }
 
   .field-cell {
     //width: 450px;
     //border-top: 1px solid gray;
     //border-left: 1px solid gray;
-    padding: 10px;
-    display: flex;
-    flex-flow: column;
-    box-shadow: none;
-    background-color: hsl(38, 78%, 91%);
-
-    &.success {
-      box-shadow: 0 0 10px 3px transparent;
-    }
+    //
+    //display: flex;
+    //flex-flow: column;
+    //box-shadow: none;
+    //background-color: hsl(38, 78%, 96%);
+    //
+    //&.success {
+    //  box-shadow: 0 0 10px 3px transparent;
+    //}
   }
 
   .horizontal {
@@ -243,8 +272,8 @@ export default {
 
   .cell {
     position: relative;
-    min-width: 50px;
-    min-height: 50px;
+    //min-width: 50px;
+    //min-height: 50px;
     //border: 1px solid gray;
     border-right: 1px solid gray;
     border-bottom: 1px solid gray;
@@ -254,11 +283,11 @@ export default {
     cursor: pointer;
 
     &.mark-no {
-      background-color: hsla(0, 100%, 50%, .3);
+      //background-color: hsla(0, 100%, 50%, .1);
     }
 
     &.mark-yes {
-      background-color: hsla(120, 100%, 25%, .3);
+      //background-color: hsla(120, 100%, 25%, .1);
     }
 
     &.alive {
@@ -296,13 +325,17 @@ export default {
 
   .signed-mark-yes {
     position: absolute;
-    top: 0;
-    left: 0;
-    wigth: 100%;
-    height: 100%;
-    border: 3px solid green;
-    border-radius: 20px;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    height: 90%;
+    border: 5px solid hsla(120, 37%, 59%, 0.66);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+
   }
+
 
   .cell-alive-sum {
     width: 50px;
@@ -311,6 +344,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 
   .cell-marked-sum {
