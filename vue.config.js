@@ -12,5 +12,15 @@ module.exports = defineConfig({
                 additionalData: [...bootstrapSassAbstractsImports, ''].join(';\n')
             }
         }
+    },
+    configureWebpack: {
+        module: {
+            rules: [
+                {
+                    test: /\.geojson$/,
+                    loader: 'json-loader'
+                }
+            ]
+        }
     }
 })

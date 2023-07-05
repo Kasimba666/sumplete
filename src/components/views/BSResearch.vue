@@ -49,7 +49,7 @@
             <div class="row">
                 <div class="col-12 col-md-4 col-lg-4 col-xl-4 mb-4">
                     <div class="block -b1">
-
+                      {{ geoobjects }}
                     </div>
                 </div>
                 <div class="col-12 col-md-4 col-lg-4 col-xl-4">
@@ -169,6 +169,7 @@
 </template>
 
 <script>
+import geojson from "@/data/bolgar_settlements.geojson"
 
 export default {
     name: "BSResearch",
@@ -188,6 +189,7 @@ export default {
             type_breed: ['wolf', 'pinscher', 'pomeranian spitz', 'fox', 'pug'],
             selected_breeds: [],
             selected_breed: null,
+            geoobjects: geojson.features,
 
         }
     },
