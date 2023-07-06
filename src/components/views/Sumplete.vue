@@ -4,88 +4,94 @@
 
       <div class="row">
         <div class="col-12 col-md-12 col-lg-8 mb-4">
-            <div id="GF" class="game-field">
-              <div class="horizontal"
-                   v-for="(hor, j) of arrayField" :key="j">
-                <div class="cell" :class="[marks[cell.status], {alive:cell.isAlive},
-                                                {bordertopwin: success & (j==0)},
-                                                {borderbottomwin: success & (j==(fieldSizeY-1))},
-                                                {borderleftwin: success & (i==0)},
-                                                {borderrightwin: success & (i==(fieldSizeX-1))},
-                                                {bordertop: !success & (j==0)},
-                                                {borderleft: !success & (i==0)}
+          <div id="GF" class="game-field">
+            <div class="horizontal"
+                 v-for="(hor, j) of arrayField" :key="j">
+              <div class="cell" :class="[marks[cell.status], {alive:cell.isAlive},
+                                                {bordertopwin: isSuccess() & (j===0)},
+                                                {borderbottomwin: isSuccess() & (j===(fieldSizeY-1))},
+                                                {borderleftwin: isSuccess() & (i===0)},
+                                                {borderrightwin: isSuccess() & (i===(fieldSizeX-1))},
+                                                {bordertop: !isSuccess() & (j===0)},
+                                                {borderleft: !isSuccess() & (i===0)}
                                                 ]"
-                     :style="{fontStyle: true ? 'normal':'italic',
+                   :style="{fontStyle: true ? 'normal':'italic',
                               color: false ? 'gray':'black',
                               width: `${cellSize}px`,
                               height: `${cellSize}px`}"
-                     v-for="(cell, i) of hor" :key="i"
-                     @click="cellClick(cell)">
-                  <div :class="[signedmarks[cell.status]]">
+                   v-for="(cell, i) of hor" :key="i"
+                   @click="cellClick(cell)">
+                <div :class="[signedmarks[cell.status]]">
 
-                  </div>
-                    {{ cell.value }}
                 </div>
-                <div class="cell-alive-sum"
-                     :style="{fontWeight: arraySumAliveHorizontal[j] === arraySumMarkedHorizontal[j] ? 'bold':'normal',
+                {{ cell.value }}
+              </div>
+              <div class="cell-alive-sum"
+                   :style="{fontWeight: arraySumAliveHorizontal[j] === arraySumMarkedHorizontal[j] ? 'bold':'normal',
                               width: `${cellSize}px`,
                               height: `${cellSize}px`
-                }">
-                  {{ arraySumAliveHorizontal[j] }}
-                </div>
-                <!--                            <div class="cell-marked-sum">-->
-                <!--                                {{ arraySumMarkedHorizontal[j] }}-->
-                <!--                            </div>-->
+                              }"
+                   @click="setHorizontalMarks(arraySumAliveHorizontal[j])"
+                   >
+                {{ arraySumAliveHorizontal[j] }}
               </div>
-
-              <div class="horizontal">
-                <div class="cell-alive-sum"
-                     :style="{fontWeight: arraySumAliveVertical[i - 1] === arraySumMarkedVertical[i - 1] ? 'bold':'normal',
-                              width: `${cellSize}px`,
-                              height: `${cellSize}px`
-                }"
-                     v-for="i of this.fieldSizeX">
-                  {{ arraySumAliveVertical[i - 1] }}
-                </div>
-              </div>
-
-              <!--                        <div class="horizontal">-->
-              <!--                            <div class="cell-marked-sum"-->
-              <!--                                 v-for="i of this.field_size">-->
-              <!--                                {{ arraySumMarkedVertical[i - 1] }}-->
-              <!--                            </div>-->
-              <!--                        </div>-->
+              <!--                <div class="cell-marked-sum"-->
+              <!--                     :style="{width: `${cellSize}px`,-->
+              <!--                              height: `${cellSize}px`}">-->
+              <!--                  {{ arraySumMarkedHorizontal[j] }}-->
+              <!--                </div>-->
             </div>
+
+            <div class="horizontal">
+              <div class="cell-alive-sum"
+                   :style="{fontWeight: arraySumAliveVertical[i - 1] === arraySumMarkedVertical[i - 1] ? 'bold':'normal',
+                              width: `${cellSize}px`,
+                              height: `${cellSize}px`
+                             }"
+                   @click="setVerticalMarks(arraySumAliveVertical[i - 1])"
+                   v-for="i of this.fieldSizeX">
+                {{ arraySumAliveVertical[i - 1] }}
+              </div>
+            </div>
+
+            <!--              <div class="horizontal">-->
+            <!--                <div class="cell-marked-sum"-->
+            <!--                     :style="{width: `${cellSize}px`,-->
+            <!--                              height: `${cellSize}px`}"-->
+            <!--                     v-for="i of this.fieldSizeX">-->
+            <!--                  {{ arraySumMarkedVertical[i - 1] }}-->
+            <!--                </div>-->
+            <!--              </div>-->
+          </div>
 
         </div>
       </div>
 
-        <div class="row">
-            <div class="col-12 col-md-12 col-lg-8 mb-2">
-                <div class="controls">
-                    Размер поля:
-                    <b-input id="fieldSizeX"
-                             style="width: 50px;"
-                             min="3"
-                             max="9"
-                             size="sm"
-                             v-model.number="fieldSizeX" type="number"></b-input>
-                    x
-                    <b-input id="fieldSizeY"
-                             style="width: 50px;"
-                             min="3"
-                             max="9"
-                             size="sm"
-                             v-model.number="fieldSizeY" type="number"></b-input>
-                    <b-button @click="createNewGame(fieldSizeX, fieldSizeY)"
-                              variant="primary"
-                              size="sm"
-                    >Создать
-                    </b-button>
-                    {{ screen.type }}, {{ gfWidth }}
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-12 col-md-12 col-lg-8 mb-2">
+          <div class="controls">
+            Размер поля:
+            <b-input id="fieldSizeX"
+                     style="width: 50px;"
+                     min="3"
+                     max="9"
+                     size="sm"
+                     v-model.number="newfieldSizeX" type="number"></b-input>
+            x
+            <b-input id="fieldSizeY"
+                     style="width: 50px;"
+                     min="3"
+                     max="9"
+                     size="sm"
+                     v-model.number="newfieldSizeY" type="number"></b-input>
+            <b-button @click="createNewGame(newfieldSizeX, newfieldSizeY)"
+                      variant="primary"
+                      size="sm"
+            >Создать
+            </b-button>
+          </div>
         </div>
+      </div>
 
     </div>
   </div>
@@ -104,8 +110,9 @@ export default {
     return {
       fieldSizeX: 4,
       fieldSizeY: 4,
-      cellWidth: 60,
-      cellHeight: 60,
+      newfieldSizeX: 4,
+      newfieldSizeY: 4,
+
       arrayField: [],
       arraySumAliveHorizontal: [],
       arraySumAliveVertical: [],
@@ -114,24 +121,24 @@ export default {
       marks: ['', 'mark-no', 'mark-yes'],
       signedmarks: ['', 'signed-mark-no', 'signed-mark-yes'],
 
-      success: false,
     }
   },
   computed: {
-      ...mapState(['screen', 'screenBreakpoints']),
-      gfWidth() {
-          // const w = window["GF"].clientWidth;
-          const w = window["GF"].clientWidth;
-          if (this.screen.type!=='xs') {
-              console.log(this.screen.type, w);
-          } else {
-              console.log(this.screen.width, w);
-          }
-          return w;
-      },
-      cellSize() {
-        return Math.floor(this.gfWidth/(this.fieldSizeX + 1));
-      },
+    ...mapState(['screen', 'screenBreakpoints']),
+    gfWidth() {
+      // const w = 1000;
+      const w = document.getElementById("GF").clientWidth;
+      // const w = window["GF"].clientWidth;
+      if (this.screen.type !== 'xs') {
+        console.log(this.screen.type, w);
+      } else {
+        console.log(this.screen.width, w);
+      }
+      return w;
+    },
+    cellSize() {
+      return Math.floor(this.gfWidth / (this.fieldSizeX + 1));
+    },
 
   },
   methods: {
@@ -141,6 +148,8 @@ export default {
       this.recalc();
     },
     recalc() {
+      this.fieldSizeX = this.newfieldSizeX;
+      this.fieldSizeY = this.newfieldSizeY;
       const sizeX = this.fieldSizeX;
       const sizeY = this.fieldSizeY;
       let i, j;
@@ -167,8 +176,8 @@ export default {
         }
         this.arraySumMarkedVertical[i] = sumMarkedVertical;
       }
-      this.success = (JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
-          (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical));
+      // this.success = (JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
+      //     (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical));
     },
     createNewGame: function (sizeX, sizeY) {
       this.arrayField = [];
@@ -213,14 +222,29 @@ export default {
       }
       this.recalc();
     },
+    setHorizontalMarks(v) {
 
+    },
+    setVerticalMarks(v) {
+
+    },
+    isSuccess() {
+      let suc = false;
+      suc = ((JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
+          (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical)));
+      return suc;
+    },
   },
-  watcher: {},
+
 }
 </script>
 
 
 <style lang="scss">
+:root {
+  --max-cell-size: 100px;
+  --min-cell-size: 20px;
+}
 
 .Sumplete {
   width: 100%;
@@ -250,20 +274,6 @@ export default {
 
   }
 
-  .field-cell {
-    //width: 450px;
-    //border-top: 1px solid gray;
-    //border-left: 1px solid gray;
-    //
-    //display: flex;
-    //flex-flow: column;
-    //box-shadow: none;
-    //background-color: hsl(38, 78%, 96%);
-    //
-    //&.success {
-    //  box-shadow: 0 0 10px 3px transparent;
-    //}
-  }
 
   .horizontal {
     display: flex;
@@ -272,8 +282,10 @@ export default {
 
   .cell {
     position: relative;
-    //min-width: 50px;
-    //min-height: 50px;
+    min-width: var(--min-cell-size);
+    min-height: var(--min-cell-size);
+    max-width: var(--max-cell-size);
+    max-height: var(--max-cell-size);
     //border: 1px solid gray;
     border-right: 1px solid gray;
     border-bottom: 1px solid gray;
@@ -336,20 +348,52 @@ export default {
 
   }
 
+  .signed-mark-no {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff0000' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cline x1='18' y1='6' x2='6' y2='18' /%3E%3Cline x1='6' y1='6' x2='18' y2='18' /%3E%3C/svg%3E");
+    background-position: center;
+    opacity: 20%;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
 
   .cell-alive-sum {
-    width: 50px;
-    height: 50px;
+    position: relative;
+    max-width: var(--max-cell-size);
+    max-height: var(--max-cell-size);
+    min-width: var(--min-cell-size);
+    min-height: var(--min-cell-size);
     font-style: normal;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    border: 3px solid hsla(0, 0%, 50%, 0.1);
+    border-radius: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      border-color: hsla(0, 0%, 50%, 0.3);
+    }
+  ;
   }
 
   .cell-marked-sum {
-    width: 50px;
-    height: 50px;
+    position: relative;
+    max-width: var(--max-cell-size);
+    max-height: var(--max-cell-size);
+    min-width: var(--min-cell-size);
+    min-height: var(--min-cell-size);
     font-style: normal;
     display: flex;
     align-items: center;
@@ -357,8 +401,5 @@ export default {
 
   }
 
-  .button-control {
-
-  }
 }
 </style>
