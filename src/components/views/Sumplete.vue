@@ -27,30 +27,30 @@
                 {{ cell.value }}
               </div>
               <div class="cell-alive-sum"
-                   :style="{fontWeight: arraySumAliveHorizontal[j] === arraySumMarkedHorizontal[j] ? 'bold':'normal',
-                              width: `${cellSize}px`,
+                   :style="{fontWeight: arraySumHorizontal[j].alive_value === arraySumHorizontal[j].marked_value ? 'bold':'normal',
+                   width: `${cellSize}px`,
                               height: `${cellSize}px`
                               }"
-                   @click="setHorizontalMarks(arraySumAliveHorizontal[j])"
+                   @click="setHorizontalMarks()"
                    >
-                {{ arraySumAliveHorizontal[j] }}
+                {{ arraySumHorizontal[j].alive_value }}
               </div>
               <!--                <div class="cell-marked-sum"-->
               <!--                     :style="{width: `${cellSize}px`,-->
               <!--                              height: `${cellSize}px`}">-->
-              <!--                  {{ arraySumMarkedHorizontal[j] }}-->
+              <!--                  {{ arraySumHorizontal[j].marked_value }}-->
               <!--                </div>-->
             </div>
 
             <div class="horizontal">
               <div class="cell-alive-sum"
-                   :style="{fontWeight: arraySumAliveVertical[i - 1] === arraySumMarkedVertical[i - 1] ? 'bold':'normal',
-                              width: `${cellSize}px`,
+                   :style="{fontWeight: arraySumVertical[i - 1].alive_value === arraySumVertical[i - 1].marked_value ? 'bold':'normal',
+                   width: `${cellSize}px`,
                               height: `${cellSize}px`
                              }"
-                   @click="setVerticalMarks(arraySumAliveVertical[i - 1])"
+                   @click="setVerticalMarks()"
                    v-for="i of this.fieldSizeX">
-                {{ arraySumAliveVertical[i - 1] }}
+                {{ arraySumVertical[i - 1].alive_value }}
               </div>
             </div>
 
@@ -59,7 +59,7 @@
             <!--                     :style="{width: `${cellSize}px`,-->
             <!--                              height: `${cellSize}px`}"-->
             <!--                     v-for="i of this.fieldSizeX">-->
-            <!--                  {{ arraySumMarkedVertical[i - 1] }}-->
+            <!--                  {{ arraySumVertical[i - 1].marked_value }}-->
             <!--                </div>-->
             <!--              </div>-->
           </div>
@@ -101,7 +101,7 @@
 import BSResearch from '@/components/views/BSResearch.vue';
 import {mapState} from "vuex";
 
-const cell = JSON.stringify({value: null, isAlive: null, status: null});
+// const cell = JSON.stringify({value: null, isAlive: null, status: null});
 
 export default {
   name: 'Home',
@@ -114,20 +114,19 @@ export default {
       newfieldSizeY: 4,
 
       arrayField: [],
-      arraySumAliveHorizontal: [],
-      arraySumAliveVertical: [],
-      arraySumMarkedHorizontal: [],
-      arraySumMarkedVertical: [],
+      arraySumHorizontal: [],
+      arraySumVertical: [],
+
       marks: ['', 'mark-no', 'mark-yes'],
       signedmarks: ['', 'signed-mark-no', 'signed-mark-yes'],
-
+      summarks: ['no-marked', 'marked'],
     }
   },
   computed: {
     ...mapState(['screen', 'screenBreakpoints']),
     gfWidth() {
-      // const w = 1000;
-      const w = document.getElementById("GF").clientWidth;
+      const w = 1000;
+      // const w = document.getElementById("GF").clientWidth;
       // const w = window["GF"].clientWidth;
       if (this.screen.type !== 'xs') {
         console.log(this.screen.type, w);
@@ -165,7 +164,7 @@ export default {
           }
         }
 
-        this.arraySumMarkedHorizontal[j] = sumMarkedHorizontal;
+        this.arraySumHorizontal[j].marked_value = sumMarkedHorizontal;
       }
 
       for (i = 0; i < sizeX; i++) {
@@ -174,22 +173,19 @@ export default {
             sumMarkedVertical += this.arrayField[j][i].value;
           }
         }
-        this.arraySumMarkedVertical[i] = sumMarkedVertical;
+        this.arraySumVertical[i].marked_value = sumMarkedVertical;
       }
-      // this.success = (JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
-      //     (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical));
     },
     createNewGame: function (sizeX, sizeY) {
       this.arrayField = [];
-      this.arraySumAliveHorizontal = [];
-      this.arraySumAliveVertical = [];
-      this.arraySumMarkedVertical = [];
-      this.arraySumMarkedHorizontal = [];
+      this.arraySumHorizontal = [];
+      this.arraySumVertical = [];
+
       let i, j;
       let horizontal = [];
       let sumAliveHorizontal = 0;
       let sumAliveVertical = 0;
-
+      let sum = {alive_value: 0, marked_value: 0, status: 0};
       for (j = 0; j < sizeY; j++) {
         horizontal = [];
         sumAliveHorizontal = 0;
@@ -204,8 +200,12 @@ export default {
           }
         }
         this.arrayField.push(horizontal);
-        this.arraySumAliveHorizontal.push(sumAliveHorizontal);
-        this.arraySumMarkedHorizontal.push(0);
+
+        sum.alive_value = sumAliveHorizontal;
+        sum.marked_value = 0;
+        sum.status = 0;
+        this.arraySumHorizontal.push(sum);
+
       }
       for (i = 0; i < sizeX; i++) {
         sumAliveVertical = 0;
@@ -213,27 +213,42 @@ export default {
           if (this.arrayField[j][i].isAlive) {
             sumAliveVertical += this.arrayField[j][i].value
           }
-          if (this.arrayField[j][i].status == 2) {
+          if (this.arrayField[j][i].status === 2) {
             sumAliveVertical += this.arrayField[j][i].value
           }
         }
-        this.arraySumAliveVertical.push(sumAliveVertical);
-        this.arraySumMarkedVertical.push(0);
+        sum.alive_value = sumAliveVertical;
+        sum.marked_value = 0;
+        sum.status = 0;
+
+        this.arraySumVertical.push(sum);
+
       }
+      console.log('Horizontal: ' + this.arraySumHorizontal);
+      console.log('Vertical: ' + this.arraySumVertical);
       this.recalc();
     },
-    setHorizontalMarks(v) {
+    setHorizontalMarks() {
 
     },
-    setVerticalMarks(v) {
+    setVerticalMarks() {
 
     },
     isSuccess() {
-      let suc = false;
-      suc = ((JSON.stringify(this.arraySumAliveHorizontal) === JSON.stringify(this.arraySumMarkedHorizontal)) &
-          (JSON.stringify(this.arraySumAliveVertical) === JSON.stringify(this.arraySumMarkedVertical)));
+      let i, j;
+      let suc = true;
+      for (i = 0; suc && (i < this.arraySumHorizontal.length); i++) {
+        suc = (this.arraySumHorizontal[i].alive_value === this.arraySumHorizontal[i].marked_value);
+      }
+      for (j = 0; suc && (j < this.arraySumVertical.length); j++) {
+        suc = (this.arraySumVertical[j].alive_value === this.arraySumVertical[j].marked_value);
+      }
+
       return suc;
     },
+  },
+  mounted: function() {
+    this.createNewGame(this.newfieldSizeX, this.newfieldSizeY);
   },
 
 }
@@ -378,9 +393,6 @@ export default {
     cursor: pointer;
     border: 3px solid hsla(0, 0%, 50%, 0.1);
     border-radius: 20%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     &:hover {
       border-color: hsla(0, 0%, 50%, 0.3);
