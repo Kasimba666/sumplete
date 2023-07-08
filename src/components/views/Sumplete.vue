@@ -27,41 +27,29 @@
                 {{ cell.value }}
               </div>
               <div class="cell-alive-sum"
-                   :style="{fontWeight: arraySumHorizontal[j].alive_value === arraySumHorizontal[j].marked_value ? 'bold':'normal',
-                   width: `${cellSize}px`,
+                   :class="{matched: (arraySumHorizontal[j].status == 1)}"
+                   :style="{width: `${cellSize}px`,
                               height: `${cellSize}px`
                               }"
-                   @click="setHorizontalMarks()"
-                   >
+                   @click="setHorizontalMarks(j)"
+              >
                 {{ arraySumHorizontal[j].alive_value }}
               </div>
-              <!--                <div class="cell-marked-sum"-->
-              <!--                     :style="{width: `${cellSize}px`,-->
-              <!--                              height: `${cellSize}px`}">-->
-              <!--                  {{ arraySumHorizontal[j].marked_value }}-->
-              <!--                </div>-->
+
             </div>
 
             <div class="horizontal">
               <div class="cell-alive-sum"
-                   :style="{fontWeight: arraySumVertical[i - 1].alive_value === arraySumVertical[i - 1].marked_value ? 'bold':'normal',
-                   width: `${cellSize}px`,
+                   :class="{matched: (arraySumVertical[i - 1].status == 1)}"
+                   :style="{width: `${cellSize}px`,
                               height: `${cellSize}px`
                              }"
-                   @click="setVerticalMarks()"
+                   @click="setVerticalMarks(i-1)"
                    v-for="i of this.fieldSizeX">
                 {{ arraySumVertical[i - 1].alive_value }}
               </div>
             </div>
 
-            <!--              <div class="horizontal">-->
-            <!--                <div class="cell-marked-sum"-->
-            <!--                     :style="{width: `${cellSize}px`,-->
-            <!--                              height: `${cellSize}px`}"-->
-            <!--                     v-for="i of this.fieldSizeX">-->
-            <!--                  {{ arraySumVertical[i - 1].marked_value }}-->
-            <!--                </div>-->
-            <!--              </div>-->
           </div>
 
         </div>
@@ -152,29 +140,34 @@ export default {
       const sizeX = this.fieldSizeX;
       const sizeY = this.fieldSizeY;
       let i, j;
-      let sumMarkedHorizontal = 0;
-      let sumMarkedVertical = 0;
+      let sumCurrentHorizontal = 0;
+      let sumCurrentVertical = 0;
 
 
       for (j = 0; j < sizeY; j++) {
-        for (i = 0, sumMarkedHorizontal = 0; i < sizeX; i++) {
+        for (i = 0, sumCurrentHorizontal = 0; i < sizeX; i++) {
 
           if (this.arrayField[j][i].status !== 1) {
-            sumMarkedHorizontal += this.arrayField[j][i].value;
+            sumCurrentHorizontal += this.arrayField[j][i].value;
           }
         }
 
-        this.arraySumHorizontal[j].marked_value = sumMarkedHorizontal;
+        this.arraySumHorizontal[j].current_value = sumCurrentHorizontal;
+        this.arraySumHorizontal[j].status = (this.arraySumHorizontal[j].current_value === this.arraySumHorizontal[j].alive_value);
+
       }
 
       for (i = 0; i < sizeX; i++) {
-        for (j = 0, sumMarkedVertical = 0; j < sizeY; j++) {
+        for (j = 0, sumCurrentVertical = 0; j < sizeY; j++) {
           if (this.arrayField[j][i].status !== 1) {
-            sumMarkedVertical += this.arrayField[j][i].value;
+            sumCurrentVertical += this.arrayField[j][i].value;
           }
         }
-        this.arraySumVertical[i].marked_value = sumMarkedVertical;
+        this.arraySumVertical[i].current_value = sumCurrentVertical;
+        this.arraySumVertical[i].status = (this.arraySumVertical[i].current_value === this.arraySumVertical[i].alive_value);
       }
+
+
     },
     createNewGame: function (sizeX, sizeY) {
       this.arrayField = [];
@@ -185,7 +178,6 @@ export default {
       let horizontal = [];
       let sumAliveHorizontal = 0;
       let sumAliveVertical = 0;
-      let sum = {alive_value: 0, marked_value: 0, status: 0};
       for (j = 0; j < sizeY; j++) {
         horizontal = [];
         sumAliveHorizontal = 0;
@@ -201,10 +193,11 @@ export default {
         }
         this.arrayField.push(horizontal);
 
-        sum.alive_value = sumAliveHorizontal;
-        sum.marked_value = 0;
-        sum.status = 0;
-        this.arraySumHorizontal.push(sum);
+        this.arraySumHorizontal.push({
+          alive_value: sumAliveHorizontal,
+          current_value: 0,
+          status: 0
+        });
 
       }
       for (i = 0; i < sizeX; i++) {
@@ -217,37 +210,51 @@ export default {
             sumAliveVertical += this.arrayField[j][i].value
           }
         }
-        sum.alive_value = sumAliveVertical;
-        sum.marked_value = 0;
-        sum.status = 0;
 
-        this.arraySumVertical.push(sum);
+        this.arraySumVertical.push({
+          alive_value: sumAliveVertical,
+          marked_value: 0,
+          status: 0
+        });
 
       }
-      console.log('Horizontal: ' + this.arraySumHorizontal);
-      console.log('Vertical: ' + this.arraySumVertical);
+
       this.recalc();
     },
-    setHorizontalMarks() {
-
+    setHorizontalMarks(horizontal) {
+      if (this.arraySumHorizontal[horizontal].status == 1) {
+        let index = 0;
+        for (index = 0; index < this.fieldSizeX; index++) {
+          if (this.arrayField[horizontal][index].status == 0) {
+            this.arrayField[horizontal][index].status += 2;
+          }
+        }
+      }
     },
-    setVerticalMarks() {
-
+    setVerticalMarks(vertical) {
+      if (this.arraySumVertical[vertical].status == 1) {
+        let index = 0;
+        for (index = 0; index < this.fieldSizeY; index++) {
+          if (this.arrayField[index][vertical].status == 0) {
+            this.arrayField[index][vertical].status += 2;
+          }
+        }
+      }
     },
     isSuccess() {
       let i, j;
       let suc = true;
       for (i = 0; suc && (i < this.arraySumHorizontal.length); i++) {
-        suc = (this.arraySumHorizontal[i].alive_value === this.arraySumHorizontal[i].marked_value);
+        suc = (this.arraySumHorizontal[i].alive_value === this.arraySumHorizontal[i].current_value);
       }
       for (j = 0; suc && (j < this.arraySumVertical.length); j++) {
-        suc = (this.arraySumVertical[j].alive_value === this.arraySumVertical[j].marked_value);
+        suc = (this.arraySumVertical[j].alive_value === this.arraySumVertical[j].current_value);
       }
 
       return suc;
     },
   },
-  mounted: function() {
+  mounted: function () {
     this.createNewGame(this.newfieldSizeX, this.newfieldSizeY);
   },
 
@@ -387,31 +394,24 @@ export default {
     min-width: var(--min-cell-size);
     min-height: var(--min-cell-size);
     font-style: normal;
+    font-weight: normal;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    border: 3px solid hsla(0, 0%, 50%, 0.1);
-    border-radius: 20%;
 
-    &:hover {
-      border-color: hsla(0, 0%, 50%, 0.3);
+    &.matched {
+      font-weight: bold;
+      border: 3px solid hsla(0, 0%, 50%, 0.1);
+      border-radius: 20%;
+      cursor: pointer;
+
+      &:hover {
+        border-color: hsla(0, 0%, 50%, 0.3);
+      }
     }
-  ;
-  }
-
-  .cell-marked-sum {
-    position: relative;
-    max-width: var(--max-cell-size);
-    max-height: var(--max-cell-size);
-    min-width: var(--min-cell-size);
-    min-height: var(--min-cell-size);
-    font-style: normal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
   }
+
 
 }
 </style>
