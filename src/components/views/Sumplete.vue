@@ -5,7 +5,7 @@
       <div class="row">
         <div class="col-12 col-md-12 col-lg-8 mb-4">
           <div id="GF" class="game-field">
-            <div class="horizontal"
+            <div class="horizontal" v-if="arrayField.length"
                  v-for="(hor, j) of arrayField" :key="j">
               <div class="cell" :class="[marks[cell.status], {alive:cell.isAlive},
                                                 {bordertopwin: isSuccess() & (j===0)},
@@ -38,7 +38,7 @@
 
             </div>
 
-            <div class="horizontal">
+            <div class="horizontal" v-if="arrayField.length"waqssssssssssssssw988888888888>
               <div class="cell-alive-sum"
                    :class="{matched: (arraySumVertical[i - 1].status == 1)}"
                    :style="{width: `${cellSize}px`,
@@ -113,8 +113,8 @@ export default {
   computed: {
     ...mapState(['screen', 'screenBreakpoints']),
     gfWidth() {
-      const w = 1000;
-      // const w = document.getElementById("GF").clientWidth;
+      // const w = 1000;
+      const w = document.getElementById("GF")?.clientWidth ?? 1000;
       // const w = window["GF"].clientWidth;
       if (this.screen.type !== 'xs') {
         console.log(this.screen.type, w);
@@ -124,7 +124,15 @@ export default {
       return w;
     },
     cellSize() {
-      return Math.floor(this.gfWidth / (this.fieldSizeX + 1));
+        const w = document.getElementById("GF")?.clientWidth ?? 1000;
+
+        if (this.screen.type !== 'xs') {
+            console.log(this.screen.type, w);
+        } else {
+            console.log(this.screen.width, w);
+        }
+      return Math.floor(w / (this.fieldSizeX + 1));
+      // return Math.floor(this.gfWidth / (this.fieldSizeX + 1));
     },
 
   },
@@ -399,15 +407,15 @@ export default {
     align-items: center;
     justify-content: center;
 
+    border: 3px solid hsla(0, 0%, 50%, 0.3);
+    border-radius: 20%;
+    cursor: pointer;
+
+    &:hover {
+      border-color: hsla(0, 0%, 50%, 0.6);
+    }
     &.matched {
       font-weight: bold;
-      border: 3px solid hsla(0, 0%, 50%, 0.1);
-      border-radius: 20%;
-      cursor: pointer;
-
-      &:hover {
-        border-color: hsla(0, 0%, 50%, 0.3);
-      }
     }
 
   }
