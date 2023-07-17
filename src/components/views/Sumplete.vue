@@ -66,7 +66,7 @@
       <div class="row">
         <div class="col-12 col-md-12 col-lg-8 mb-2">
           <div class="controls">
-            Размер поля:
+            Size:
             <b-dropdown size="sm"
                         class="size-selector"
                         variant="outline-primary"
@@ -96,7 +96,7 @@
                 size="sm"
                 @click="modalShowNewGame = !modalShowNewGame"
             >
-              Создать
+              New
             </b-button>
 
             <b-button
@@ -104,7 +104,14 @@
                 size="sm"
                 @click="game.undoStep()"
             >
-              Отмена хода
+              Undo
+            </b-button>
+            <b-button
+                variant="secondary"
+                size="sm"
+                @click="game.redoStep()"
+            >
+              Redo
             </b-button>
 
             <b-modal id="modalNewGame"
@@ -113,7 +120,7 @@
                      centered
                      v-model="modalShowNewGame"
                      title="">
-              <p class="my-0">Начать новую игру?</p>
+              <p class="my-0">Start new game?</p>
               <template #modal-footer>
                 <div class="w-100">
                   <b-button style="width: 80px"
@@ -122,7 +129,7 @@
                       class="float-left button-new-game"
                       @click="modalShowNewGame = !modalShowNewGame"
                   >
-                    Нет
+                    No
                   </b-button>
                   <b-button style="width: 80px"
                       variant="primary"
@@ -130,7 +137,7 @@
                       class="float-right button-new-game"
                       @click="modalShowNewGame = !modalShowNewGame, createNewGame(newfieldSizeX, newfieldSizeY)"
                   >
-                    Да
+                    Yes
                   </b-button>
 
                 </div>
@@ -141,6 +148,9 @@
       </div>
 
     </div>
+    {{ game.stepCounter }}
+    <br>
+    {{ game.steps }}
   </div>
 
 </template>
@@ -180,18 +190,31 @@ export default {
           return size;
         },
         steps: [], //массив объектов: x, y, status
-
+        stepCounter: 0,
         clearSteps: function () {
           this.steps = [];
+          this.stepCounter = 0;
         },
         addStep: function (newX, newY, newS) {
           this.steps.push({x: newX, y: newY, s: newS});
-
+          this.stepCounter++;
         },
         undoStep: function () {
-          let step = this.steps.pop();
-          this.arrayField[step.y][step.x].status = step.s;
-          this.recalc();
+          if (this.stepCounter > 0) {
+            let step = this.steps[this.stepCounter];
+            this.arrayField[step.y][step.x].status = step.s;
+            this.recalc();
+            this.stepCounter--;
+          }
+        },
+
+        redoStep: function () {
+          if (this.stepCounter < this.steps.length) {
+            let step = this.steps[this.stepCounter - 1];
+            this.arrayField[step.y][step.x].status = step.s;
+            this.recalc();
+            this.stepCounter++;
+          }
         }
       },
       screenWidth: 1000,
@@ -324,7 +347,7 @@ export default {
       }
       this.game.clearSteps();
       this.recalc();
-
+      this.game.steps.push({x: 0, y: 0, s: 0});
     },
     setHorizontalMarks(y) {
       if (this.game.arraySumHorizontal[y].status == 1) {
@@ -341,7 +364,7 @@ export default {
           for (index = 0; index < this.game.fieldSizeX(); index++) {
             if (this.game.arrayField[y][index].status == 0) {
               this.game.addStep(index, y, this.game.arrayField[y][index].status);
-              this.game.arrayField[y][index].status = 1;
+               this.game.arrayField[y][index].status = 1;
             }
           }
         }
