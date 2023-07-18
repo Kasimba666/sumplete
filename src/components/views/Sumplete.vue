@@ -143,6 +143,15 @@
                 </div>
               </template>
             </b-modal>
+              <div class="timer">
+                  <b-button
+                          style="width: 60px"
+                          variant="outline-primary"
+                          size="sm">
+
+                  {{ game.timer.value }}
+                  </b-button>
+              </div>
           </div>
         </div>
       </div>
@@ -159,7 +168,7 @@
 import BSResearch from '@/components/views/BSResearch.vue';
 import {mapState} from "vuex";
 
-
+const timeInterval = 1000;
 // const cell = JSON.stringify({value: null, isAlive: null, status: null});
 
 export default {
@@ -171,6 +180,7 @@ export default {
       showAlive: 0,
       newfieldSizeX: 4,
       newfieldSizeY: 4,
+
       game: {
         arrayField: [],
         arraySumHorizontal: [],
@@ -188,6 +198,24 @@ export default {
             size = this.arrayField.length
           }
           return size;
+        },
+
+        timer: {
+            value: 0,
+            idTimer: 0,
+            state: ['stopped','started', 'pause' + 'd'],
+            timerStop() {
+                this.value = 0;
+                clearInterval();
+
+            },
+            timerStart() {
+                this.value = 0;
+                this.idTimer = SetInterval(() => {this.value++}, timeInterval);
+
+            },
+            timerPause() {
+            },
         },
         steps: [], //массив объектов: x, y, status
         stepCounter: 0,
@@ -210,7 +238,7 @@ export default {
 
         redoStep: function () {
           if (this.stepCounter < this.steps.length) {
-            let step = this.steps[this.stepCounter - 1];
+            let step = this.steps[this.stepCounter];
             this.arrayField[step.y][step.x].status = step.s;
             this.recalc();
             this.stepCounter++;
@@ -222,7 +250,7 @@ export default {
       marks: ['', 'mark-no', 'mark-yes'],
       signedmarks: ['', 'signed-mark-no', 'signed-mark-yes'],
       summarks: ['no-marked', 'marked'],
-      sizeRange: [2, 3, 4, 5, 6, 7, 8, 9],
+      sizeRange: [3, 4, 5, 6, 7, 8, 9],
       modalShowNewGame: false,
 
     }
