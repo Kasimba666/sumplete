@@ -147,8 +147,8 @@
                   <b-button
                           style="width: 60px"
                           variant="outline-primary"
-                          size="sm">
-
+                          size="sm"
+                          @click="game.timer.timerStart()">
                   {{ game.timer.value }}
                   </b-button>
               </div>
@@ -157,7 +157,9 @@
       </div>
 
     </div>
-    {{ game.stepCounter }}
+    Состояние: {{ game.state }}
+    <br>
+    Позиция курсора: {{ game.stepCounter }}
     <br>
     {{ game.steps }}
   </div>
@@ -168,7 +170,10 @@
 import BSResearch from '@/components/views/BSResearch.vue';
 import {mapState} from "vuex";
 
-const timeInterval = 1000;
+const timeInterval = 2000;
+const gameStates = ['created', 'started', 'finished'];
+const timerStates = ['stopped','started', 'pause'];
+
 // const cell = JSON.stringify({value: null, isAlive: null, status: null});
 
 export default {
@@ -180,8 +185,11 @@ export default {
       showAlive: 0,
       newfieldSizeX: 4,
       newfieldSizeY: 4,
+      sizeRange: [2, 3, 4, 5, 6, 7, 8, 9],
 
       game: {
+        state: null,
+        inProgress: 0,
         arrayField: [],
         arraySumHorizontal: [],
         arraySumVertical: [],
@@ -203,15 +211,17 @@ export default {
         timer: {
             value: 0,
             idTimer: 0,
-            state: ['stopped','started', 'pause' + 'd'],
+            state: null,
             timerStop() {
-                this.value = 0;
-                clearInterval();
+                // this.value = 0;
+                clearInterval(this.idTimer);
+
 
             },
             timerStart() {
                 this.value = 0;
-                this.idTimer = SetInterval(() => {this.value++}, timeInterval);
+                this.idTimer = setInterval(() => {this.value++}, timeInterval);
+
 
             },
             timerPause() {
@@ -250,7 +260,6 @@ export default {
       marks: ['', 'mark-no', 'mark-yes'],
       signedmarks: ['', 'signed-mark-no', 'signed-mark-yes'],
       summarks: ['no-marked', 'marked'],
-      sizeRange: [3, 4, 5, 6, 7, 8, 9],
       modalShowNewGame: false,
 
     }
@@ -278,6 +287,16 @@ export default {
       cell.status++;
       cell.status %= 3;
       this.recalc();
+      if (this.game.state == 'created') {
+        this.game.state = 'running';
+        this.game.timer.timerStart();
+      }else{
+        if (this.isSuccess()) {
+          this.game.state = 'finished';
+          this.game.timer.timerStop();
+        }
+      }
+
     },
     recalc() {
       const sizeX = this.game.fieldSizeX();
@@ -376,7 +395,9 @@ export default {
       this.game.clearSteps();
       this.recalc();
       this.game.steps.push({x: 0, y: 0, s: 0});
+      this.game.state = 'created';
     },
+
     setHorizontalMarks(y) {
       if (this.game.arraySumHorizontal[y].status == 1) {
         let index = 0;
@@ -401,7 +422,7 @@ export default {
     },
 
     setVerticalMarks(x) {
-      console.log(this.game.arraySumVertical[x].status);
+
       if (this.game.arraySumVertical[x].status == 1) {
         let index = 0;
         for (index = 0; index < this.game.fieldSizeY(); index++) {
@@ -409,7 +430,7 @@ export default {
             this.game.addStep(x, index, this.game.arrayField[index][x].status);
             this.game.arrayField[index][x].status = 2;
           }
-          console.log(index + ', ' + this.game.arrayField[index][x].value);
+
         }
       } else {
         let index = 0;
@@ -437,6 +458,7 @@ export default {
 
       return suc;
     },
+
     onResize() {
       this.screenWidth = this.$refs['GF'].clientWidth;
 
@@ -456,15 +478,7 @@ export default {
     window.removeEventListener("resize", this.onResize);
   },
 
-  watch: {
-    clientWidth() {
-      return this.$refs['GF'].clientWidth;
-    },
-    function(v) {
-      console.log(v)
-    }
 
-  },
 }
 </script>
 
