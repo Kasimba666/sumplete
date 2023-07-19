@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Sumplete from '@/components/views/Sumplete.vue'
 import BSResearch from '@/components/views/BSResearch.vue'
+import Solutions from '@/components/views/Solutions.vue'
 
 Vue.use(VueRouter)
 
@@ -10,6 +11,11 @@ const routes = [
     path: '/',
     name: 'Sumplete',
     component: Sumplete
+  },
+  {
+    path: '/solutions',
+    name: 'Solutions',
+    component: Solutions
   },
   {
     path: '/bs',

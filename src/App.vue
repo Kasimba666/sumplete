@@ -6,8 +6,8 @@
                 {{ screen.width }}px
             </div>
             <nav>
-                <router-link :to="{name: 'Sumplete'}">Sumplete</router-link>
-                |
+                <router-link :to="{name: 'Sumplete'}">Sumplete</router-link>|
+                <router-link :to="{name: 'Solutions'}">Solutions</router-link>|
                 <router-link :to="{name: 'BSResearch'}">BSResearch</router-link>
 
             </nav>
