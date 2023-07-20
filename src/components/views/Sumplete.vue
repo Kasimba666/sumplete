@@ -62,10 +62,11 @@
         <div class="col-12 col-md-12 col-lg-8 mb-2">
           <div class="controls">
             Size:
-            <b-dropdown size="sm"
-                        class="size-selector"
-                        variant="outline-primary"
-                        :text="newfieldSizeX.toFixed(0)"
+              <b-dropdown
+                      size="sm"
+                      class="size-selector"
+                      variant="outline-primary"
+                      :text="newfieldSizeX.toFixed(0)"
             >
               <b-dd-item
                   v-for="i of sizeRange"
@@ -74,12 +75,13 @@
               </b-dd-item>
             </b-dropdown>
             x
-            <b-dropdown size="sm"
-                        class="size-selector"
-                        variant="outline-primary"
-                        :text="newfieldSizeY.toFixed(0)"
+            <b-dropdown
+                    size="sm"
+                    class="size-selector"
+                    variant="outline-primary"
+                    :text="newfieldSizeY.toFixed(0)"
             >
-              <b-dd-item
+            <b-dd-item
                   v-for="i of sizeRange"
                   @click="ddClickSizeY(i)">
                 {{ i }}
