@@ -18,10 +18,14 @@ export default new Vuex.Store({
       height: 900,
       type: 'lg',
     },
+    currentTask: null,
   },
   mutations: {
     screen(state, v){
       state.screen = v;
+    },
+    currentTask(state, v){
+      state.currentTask = v;
     },
   },
   actions: {
