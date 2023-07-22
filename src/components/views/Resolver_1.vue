@@ -7,8 +7,8 @@
                 </b-col>
                 <div class="col-12">
                     <div class="field-values" v-if="!!game">
-                        <div class="horizontal" v-if="game.arrayValues"
-                             v-for="(hor, j) of game.arrayValues" :key="j">
+                        <div class="horizontal" v-if="game.arrRows"
+                             v-for="(hor, j) of game.arrRows" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
                                  v-for="(value, i) of hor" :key="i">
@@ -16,16 +16,16 @@
                             </div>
                             <div class="cell-sum">
                                 <div class="sum-border"></div>
-                                {{ game.arraySumHor[j] }}
+                                {{ game.arrSumRows[j] }}
                             </div>
 
                         </div>
 
-                        <div class="horizontal" v-if="game.arraySumVer">
+                        <div class="horizontal" v-if="game.arrSumCols">
                             <div class="cell-sum"
-                                 v-for="i of game.sizeHor">
+                                 v-for="i of game.sizeRows">
                                 <div class="sum-border"></div>
-                                {{ game.arraySumVer[i - 1] }}
+                                {{ game.arrSumCols[i - 1] }}
 
                             </div>
                         </div>
@@ -55,7 +55,17 @@ export default {
             return this.currentTask;
         },
     },
-    methods: {},
+    methods: {
+        decimalToBitVector(decimal, length) {
+            return Array.from('0'.repeat(length) + decimal.toString(2)).slice(-length);
+        },
+    //     dotProductSum(vector, bitVector {
+    //         vector.reduce(sum, v, i) {
+    //             this.sum += v & (i >> i)
+    //         }
+    //         return;
+    //     }
+    },
     mounted() {
     },
 }

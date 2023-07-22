@@ -7,7 +7,7 @@
                         <b-dd size="sm"
                               class="size-selector"
                               variant="outline-primary"
-                              :text="newSizeHor.toFixed(0)">
+                              :text="newSizeRows.toFixed(0)">
                             <b-dd-item
                                     v-for="i of sizeRange"
                                     @click="ddClickSizeHor(i)">
@@ -18,7 +18,7 @@
                         <b-dd size="sm"
                               class="size-selector"
                               variant="outline-primary"
-                              :text="newSizeVer.toFixed(0)">
+                              :text="newSizeCols.toFixed(0)">
                             <b-dd-item
                                     v-for="j of sizeRange"
                                     @click="ddClickSizeVer(j)">
@@ -28,15 +28,15 @@
 
                         <b-button size="sm"
                                   variant="primary"
-                                  @click="createNewGame(newSizeHor, newSizeVer)">
+                                  @click="createNewGame(newSizeRows, newSizeCols)">
                             New
                         </b-button>
                     </div>
                 </div>
                 <div class="d-flex gap-3 col-12 col-sm-8 col-md-8 col-lg-8 mb-4">
                     <div class="field-values">
-                        <div class="horizontal" v-if="game.arrayValues"
-                             v-for="(hor, j) of game.arrayValues" :key="j">
+                        <div class="horizontal" v-if="game.arrRows"
+                             v-for="(hor, j) of game.arrRows" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
                                  v-for="(value, i) of hor" :key="i">
@@ -44,25 +44,25 @@
                             </div>
                             <div class="cell-sum">
                                 <div class="sum-border"></div>
-                                {{ game.arraySumHor[j] }}
+                                {{ game.arrSumRows[j] }}
                             </div>
                             <div class="cell-sum">
-                                {{ game.arraySumAllHor[j] }}
+                                {{ arrSumAllRows[j] }}
                             </div>
                         </div>
 
-                        <div class="horizontal" v-if="game.arraySumVer">
+                        <div class="horizontal" v-if="game.arrSumCols">
                             <div class="cell-sum"
-                                 v-for="i of game.sizeHor">
+                                 v-for="i of game.sizeRows">
                                 <div class="sum-border"></div>
-                                {{ game.arraySumVer[i - 1] }}
+                                {{ game.arrSumCols[i - 1] }}
 
                             </div>
                         </div>
-                        <div class="horizontal" v-if="game.arraySumVer">
+                        <div class="horizontal" v-if="game.arrSumCols">
                             <div class="cell-sum"
-                                 v-for="i of game.sizeHor">
-                                {{ game.arraySumAllVer[i - 1] }}
+                                 v-for="i of game.sizeRows">
+                                {{ arrSumAllCols[i - 1] }}
 
                             </div>
                         </div>
@@ -70,8 +70,8 @@
                     </div>
 
                     <div class="field-values">
-                        <div class="horizontal" v-if="game.arrayAlives"
-                             v-for="(hor, j) of game.arrayAlives" :key="j">
+                        <div class="horizontal" v-if="arrAlives"
+                             v-for="(hor, j) of arrAlives" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
                                  v-for="(value, i) of hor" :key="i">
@@ -113,19 +113,21 @@ export default {
     data() {
         return {
             sizeRange: [3, 4, 5, 6, 7, 8, 9],
-            newSizeHor: 4,
-            newSizeVer: 4,
+            newSizeRows: 4,
+            newSizeCols: 4,
 
             game: {
-                sizeHor: 0,
-                sizeVer: 0,
-                arrayValues: [],
-                arraySumHor: [],
-                arraySumVer: [],
-                arrayAlives: [],
+                sizeRows: 0,
+                sizeCols: 0,
+                arrRows: [],
+                arrCols: [],
+                arrSumRows: [],
+                arrSumCols: [],
+
             },
-            arraySumAllHor: [],
-            arraySumAllVer: [],
+            arrAlives: [],
+            arrSumAllRaws: [],
+            arrSumAllCols: [],
 
         }
     },
@@ -135,46 +137,48 @@ export default {
     methods: {
         createNewGame(maxI, maxJ) {
             let i, j;
-            this.game.sizeHor = maxI;
-            this.game.sizeVer = maxJ;
-            this.game.arrayValues = new Array(maxJ);
-            this.game.arrayAlives = new Array(maxJ);
+            this.game.sizeRows = maxI;
+            this.game.sizeCols = maxJ;
+            this.game.arrRows = new Array(maxJ);
+            this.game.arrCols = new Array(maxI);
+
+            this.arrAlives = new Array(maxJ);
             for (j = 0; j < maxJ; j++) {
-                this.game.arrayValues[j] = new Array(maxI);
-                this.game.arrayAlives[j] = new Array(maxI);
+                this.game.arrRows[j] = new Array(maxI);
+                this.arrAlives[j] = new Array(maxI);
             }
-            this.game.arraySumHor = new Array(maxJ);
-            this.game.arraySumVer = new Array(maxI);
-            this.game.arraySumAllHor = new Array(maxJ);
-            this.game.arraySumAllVer = new Array(maxI);
+            this.game.arrSumRows = new Array(maxJ);
+            this.game.arrSumCols = new Array(maxI);
+            this.arrSumAllRows = new Array(maxJ);
+            this.arrSumAllCols = new Array(maxI);
             for (j = 0; j < maxJ; j++) {
-                this.game.arraySumHor[j] = 0;
-                this.game.arraySumAllHor[j] = 0;
+                this.game.arrSumRows[j] = 0;
+                this.arrSumAllRows[j] = 0;
                 for (i = 0; i < maxI; i++) {
-                    this.game.arrayValues[j][i] = Math.trunc(Math.random() * maxCellValue);
-                    this.game.arrayAlives[j][i] = Math.floor(Math.random() + 0.5);
-                    this.game.arraySumHor[j] += this.game.arrayValues[j][i] * this.game.arrayAlives[j][i];
-                    this.game.arraySumAllHor[j] += this.game.arrayValues[j][i];
+                    this.game.arrRows[j][i] = Math.trunc(Math.random() * maxCellValue);
+                    this.arrAlives[j][i] = Math.floor(Math.random() + 0.5);
+                    this.game.arrSumRows[j] += this.game.arrRows[j][i] * this.arrAlives[j][i];
+                    this.arrSumAllRows[j] += this.game.arrRows[j][i];
                 }
             }
             for (i = 0; i < maxI; i++) {
-                this.game.arraySumVer[i] = 0;
-                this.game.arraySumAllVer[i] = 0;
+                this.game.arrSumCols[i] = 0;
+                this.arrSumAllCols[i] = 0;
                 for (j = 0; j < maxJ; j++) {
-                    this.game.arraySumVer[i] += this.game.arrayValues[j][i] * this.game.arrayAlives[j][i];
-                    this.game.arraySumAllVer[i] += this.game.arrayValues[j][i];
+                    this.game.arrCols[i][j] = this.game.arrRows[j][i];
+                    // console.log(this.game.arrRows[j][i]);
+                    this.game.arrSumCols[i] += this.game.arrRows[j][i] * this.arrAlives[j][i];
+                    this.arrSumAllCols[i] += this.game.arrRows[j][i];
                 }
             }
-            const  {sizeHor, sizeVer, arrayValues, arraySumHor, arraySumVer} = this.game;
-            this.$store.commit('currentTask',
-                {sizeHor, sizeVer, arrayValues, arraySumHor, arraySumVer});
+            this.$store.commit('currentTask', this.game);
         },
 
         ddClickSizeHor(v) {
-            this.newSizeHor = v;
+            this.newSizeRows = v;
         },
         ddClickSizeVer(v) {
-            this.newSizeVer = v;
+            this.newSizeCols = v;
         },
     },
     mounted() {
@@ -280,10 +284,11 @@ export default {
       border-color: hsla(0, 0%, 50%, 0.5);
     }
   }
-    .router-link-exact-active {
-        font-weight: bold;
-        color: black;
-        pointer-events: none;
-    }
+
+  .router-link-exact-active {
+    font-weight: bold;
+    color: black;
+    pointer-events: none;
+  }
 }
 </style>
