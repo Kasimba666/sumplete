@@ -28,14 +28,14 @@
 
                         <b-button size="sm"
                                   variant="primary"
-                                  @click="createNewGame(newSizeRows, newSizeCols)">
+                                  @click="createNewGame()">
                             New
                         </b-button>
                     </div>
                 </div>
-                <div class="d-flex gap-3 col-12 col-sm-8 col-md-8 col-lg-8 mb-4">
+                <div class="d-flex col-12 col-sm-8 col-md-8 col-lg-8 mb-4">
                     <div class="field-values">
-                        <div class="row" v-if="game.arrRows"
+                        <div class="task-row" v-if="game.arrRows"
                              v-for="(hor, j) of game.arrRows" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
@@ -51,7 +51,7 @@
                             </div>
                         </div>
 
-                        <div class="row" v-if="game.arrSumCols">
+                        <div class="task-row" v-if="game.arrSumCols">
                             <div class="cell-sum"
                                  v-for="i of game.sizeRows">
                                 <div class="sum-border"></div>
@@ -59,7 +59,7 @@
 
                             </div>
                         </div>
-                        <div class="row" v-if="game.arrSumCols">
+                        <div class="task-row" v-if="game.arrSumCols">
                             <div class="cell-sum"
                                  v-for="i of game.sizeRows">
                                 {{ arrSumAllCols[i - 1] }}
@@ -70,8 +70,8 @@
                     </div>
 
                     <div class="field-values">
-                        <div class="row" v-if="arrAlives"
-                             v-for="(hor, j) of arrAlives" :key="j">
+                        <div class="task-row" v-if="game.arrAlives"
+                             v-for="(hor, j) of game.arrAlives" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
                                  v-for="(value, i) of hor" :key="i">
@@ -123,9 +123,9 @@ export default {
                 arrCols: [],
                 arrSumRows: [],
                 arrSumCols: [],
-
+                arrAlives: [],
             },
-            arrAlives: [],
+
             arrSumAllRaws: [],
             arrSumAllCols: [],
 
@@ -135,40 +135,53 @@ export default {
         ...mapState(["currentTask"]),
     },
     methods: {
-        createNewGame(maxI, maxJ) {
-            let i, j;
-            this.game.sizeRows = maxI;
-            this.game.sizeCols = maxJ;
-            this.game.arrRows = new Array(maxJ);
-            this.game.arrCols = new Array(maxI);
-            this.arrAlives = new Array(maxJ);
-
-            this.game.arrSumRows = new Array(maxJ);
-            this.game.arrSumCols = new Array(maxI);
+        createNewGame(lastGame) {
+            let maxI = this.newSizeCols;
+            let maxJ = this.newSizeRows;
+            let g = {};
+            if (!!lastGame) {
+                maxJ = lastGame.sizeCols;
+                maxI = lastGame.sizeRows;
+                g.sizeRows = maxI;
+                g.sizeCols = maxJ;
+                g.arrRows = [...lastGame.arrRows];
+                g.arrCols = [...lastGame.arrCols];
+                g.arrAlives = [...lastGame.arrAlives];
+            } else {
+                g.sizeRows = maxI;
+                g.sizeCols = maxJ;
+                g.arrRows = new Array(maxJ);
+                g.arrCols = new Array(maxI);
+                g.arrAlives = new Array(maxJ);
+            }
+            g.arrSumRows = new Array(maxJ);
+            g.arrSumCols = new Array(maxI);
             this.arrSumAllRows = new Array(maxJ);
             this.arrSumAllCols = new Array(maxI);
+            let i, j;
             for (j = 0; j < maxJ; j++) {
-              this.game.arrRows[j] = new Array(maxI);
-              this.arrAlives[j] = new Array(maxI);
-                this.game.arrSumRows[j] = 0;
+                g.arrRows[j] = new Array(maxI);
+                g.arrAlives[j] = new Array(maxI);
+                g.arrSumRows[j] = 0;
                 this.arrSumAllRows[j] = 0;
                 for (i = 0; i < maxI; i++) {
-                    this.game.arrRows[j][i] = Math.trunc(Math.random() * maxCellValue);
-                    this.arrAlives[j][i] = Math.floor(Math.random() + 0.5);
-                    this.game.arrSumRows[j] += this.game.arrRows[j][i] * this.arrAlives[j][i];
-                    this.arrSumAllRows[j] += this.game.arrRows[j][i];
+                    g.arrRows[j][i] = !!lastGame ? +lastGame.arrRows[j][i] : Math.trunc(Math.random() * maxCellValue);
+                    g.arrAlives[j][i] = !!lastGame ? +lastGame.arrAlives[j][i] : Math.floor(Math.random() + 0.5);
+                    g.arrSumRows[j] += g.arrRows[j][i] * g.arrAlives[j][i];
+                    this.arrSumAllRows[j] += g.arrRows[j][i];
                 }
             }
             for (i = 0; i < maxI; i++) {
-                this.game.arrSumCols[i] = 0;
+                g.arrSumCols[i] = 0;
                 this.arrSumAllCols[i] = 0;
                 for (j = 0; j < maxJ; j++) {
-                    this.game.arrCols[i][j] = this.game.arrRows[j][i];
-                    // console.log(this.game.arrRows[j][i]);
-                    this.game.arrSumCols[i] += this.game.arrRows[j][i] * this.arrAlives[j][i];
-                    this.arrSumAllCols[i] += this.game.arrRows[j][i];
+                    // g.arrCols[i][j] = g.arrRows[j][i];
+                    // console.log(g.arrRows[j][i]);
+                    g.arrSumCols[i] += g.arrRows[j][i] * g.arrAlives[j][i];
+                    this.arrSumAllCols[i] += g.arrRows[j][i];
                 }
             }
+            this.game = g;
             this.$store.commit('currentTask', this.game);
         },
 
@@ -180,6 +193,9 @@ export default {
         },
     },
     mounted() {
+        setTimeout(() => {
+            this.createNewGame(this.currentTask);
+        }, 100);
     },
 }
 </script>
@@ -216,9 +232,9 @@ export default {
     }
   }
 
-  .row {
+  .task-row {
     display: flex;
-    flex-flow: row;
+    flex-flow: row nowrap;
   }
 
   .cell {
@@ -281,6 +297,12 @@ export default {
     &:hover {
       border-color: hsla(0, 0%, 50%, 0.5);
     }
+  }
+
+
+  .field-values {
+    width: auto;
+
   }
 
   .router-link-exact-active {

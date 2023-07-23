@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
+import createPersistedState from 'vuex-persistedstate'
 Vue.use(Vuex)
 
 const screenBreakpoints = {
@@ -33,5 +33,6 @@ export default new Vuex.Store({
   getters: {
   },
   modules: {
-  }
+  },
+  plugins: [createPersistedState()],
 })

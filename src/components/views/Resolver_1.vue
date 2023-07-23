@@ -46,61 +46,71 @@ export default {
     components: {},
     props: [],
     data() {
-        return {
-
-        };
+        return {};
     },
     computed: {
         ...mapState(["currentTask"]),
-      game() {
-        return this.currentTask;
-      },
+        game() {
+            return this.currentTask;
+        },
 
-      rows() {
-        let r = [];
-        for (let j = 0; j < this.game.sizeRows; j++) {
-          let row = [];
-          for (let i = 0; i < this.game.sizeCols; i++) {
-            row.push(this.game.arrRows[j][i]);
-          }
-          r.push(row);
-        }
-        return r;
-      },
-      rowSums() {
-        let rs = [];
-        for (let j = 0; j < this.game.sizeRows; j++) {
-          let sum = 0;
-          for (let i = 0; i < this.game.sizeCols; i++) {
-            sum += this.game.arrRows[j][i];
-          }
-          rs.push(sum);
-        }
-        return rs;
-      },
+        rows() {
+            if (!this.game) {
+                return null;
+            }
+            let r = [];
+            for (let j = 0; j < this.game.sizeCols; j++) {
+                let row = [];
+                for (let i = 0; i < this.game.sizeRows; i++) {
+                    row.push(this.game.arrRows[j][i]);
+                }
+                r.push(row);
+            }
+            return r;
+        },
+        rowSums() {
+            if (!this.game) {
+                return null;
+            }
+            let rs = [];
+            for (let j = 0; j < this.game.sizeCols; j++) {
+                let sum = 0;
+                for (let i = 0; i < this.game.sizeRows; i++) {
+                    sum += this.game.arrRows[j][i];
+                }
+                rs.push(sum);
+            }
+            return rs;
+        },
 
-      cols() {
-        let c = [];
-        for (let i = 0; i < this.game.sizeCols; i++) {
-          let col = [];
-          for (let j = 0; j < this.game.sizeRows; j++) {
-            col.push(this.game.arrRows[j][i]);
-          }
-          c.push(col);
-        }
-        return c;
-      },
-      colSums() {
-        let cs = [];
-        for (let i = 0; i < this.game.sizeCols; i++) {
-          let sum = 0;
-          for (let j = 0; j < this.game.sizeRows; j++) {
-            sum += this.game.arrRows[j][i];
-          }
-          cs.push(sum);
-        }
-        return cs;
-      },
+        cols() {
+            if (!this.game) {
+                return null;
+            }
+            let c = [];
+            for (let i = 0; i < this.game.sizeRows; i++) {
+                let col = [];
+                for (let j = 0; j < this.game.sizeCols; j++) {
+                    col.push(this.game.arrRows[j][i]);
+                }
+                c.push(col);
+            }
+            return c;
+        },
+        colSums() {
+            if (!this.game) {
+                return null;
+            }
+            let cs = [];
+            for (let i = 0; i < this.game.sizeRows; i++) {
+                let sum = 0;
+                for (let j = 0; j < this.game.sizeCols; j++) {
+                    sum += this.game.arrRows[j][i];
+                }
+                cs.push(sum);
+            }
+            return cs;
+        },
 
     },
     methods: {
@@ -108,7 +118,7 @@ export default {
             return Array.from('0'.repeat(length) + decimal.toString(2)).slice(-length);
         },
         dotProductSum(vector, decimal) {
-          return vector.reduce((sum, v, i) => {
+            return vector.reduce((sum, v, i) => {
                 this.sum += v * ((decimal >> i) & 1)
             });
         }
