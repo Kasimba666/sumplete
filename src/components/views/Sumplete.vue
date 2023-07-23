@@ -5,7 +5,7 @@
       <div class="row">
         <div class="col-12 col-md-11 col-lg-8 mb-4">
           <div id="GF" ref="GF" class="game-field">
-            <div class="horizontal" v-if="game.fieldSizeY()"
+            <div class="row" v-if="game.fieldSizeY()"
                  v-for="(hor, j) of game.arrayField" :key="j">
               <div class="cell" :class="[{alive: (cell.isAlive && showAlive)},
                                                 {bordertopwin: isSuccess() & (j===0)},
@@ -37,7 +37,7 @@
 
             </div>
 
-            <div class="horizontal" v-if="game.fieldSizeX()">
+            <div class="row" v-if="game.fieldSizeX()">
               <div class="cell-alive-sum"
                    :class="{matched: (game.arraySumVertical[i - 1].status == 1)}"
                    :style="{width: `${cellSize}px`,
@@ -572,7 +572,7 @@ export default {
   }
 
 
-  .horizontal {
+  .row {
     display: flex;
     flex-flow: row;
   }

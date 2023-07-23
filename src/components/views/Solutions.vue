@@ -35,7 +35,7 @@
                 </div>
                 <div class="d-flex gap-3 col-12 col-sm-8 col-md-8 col-lg-8 mb-4">
                     <div class="field-values">
-                        <div class="horizontal" v-if="game.arrRows"
+                        <div class="row" v-if="game.arrRows"
                              v-for="(hor, j) of game.arrRows" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
@@ -51,7 +51,7 @@
                             </div>
                         </div>
 
-                        <div class="horizontal" v-if="game.arrSumCols">
+                        <div class="row" v-if="game.arrSumCols">
                             <div class="cell-sum"
                                  v-for="i of game.sizeRows">
                                 <div class="sum-border"></div>
@@ -59,7 +59,7 @@
 
                             </div>
                         </div>
-                        <div class="horizontal" v-if="game.arrSumCols">
+                        <div class="row" v-if="game.arrSumCols">
                             <div class="cell-sum"
                                  v-for="i of game.sizeRows">
                                 {{ arrSumAllCols[i - 1] }}
@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="field-values">
-                        <div class="horizontal" v-if="arrAlives"
+                        <div class="row" v-if="arrAlives"
                              v-for="(hor, j) of arrAlives" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
@@ -141,17 +141,15 @@ export default {
             this.game.sizeCols = maxJ;
             this.game.arrRows = new Array(maxJ);
             this.game.arrCols = new Array(maxI);
-
             this.arrAlives = new Array(maxJ);
-            for (j = 0; j < maxJ; j++) {
-                this.game.arrRows[j] = new Array(maxI);
-                this.arrAlives[j] = new Array(maxI);
-            }
+
             this.game.arrSumRows = new Array(maxJ);
             this.game.arrSumCols = new Array(maxI);
             this.arrSumAllRows = new Array(maxJ);
             this.arrSumAllCols = new Array(maxI);
             for (j = 0; j < maxJ; j++) {
+              this.game.arrRows[j] = new Array(maxI);
+              this.arrAlives[j] = new Array(maxI);
                 this.game.arrSumRows[j] = 0;
                 this.arrSumAllRows[j] = 0;
                 for (i = 0; i < maxI; i++) {
@@ -218,7 +216,7 @@ export default {
     }
   }
 
-  .horizontal {
+  .row {
     display: flex;
     flex-flow: row;
   }
