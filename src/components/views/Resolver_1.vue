@@ -2,13 +2,10 @@
     <div class="Resolver_1">
         <b-container>
             <b-row>
-                <b-col>
-                    <h2>Resolver_1</h2>
-                </b-col>
-                <div class="col-12">
-                    <div class="field-values" v-if="!!rows">
-                        <div class="row" v-if="rows"
-                             v-for="(row, j) of rows" :key="j">
+                <div class="d-flex col-12">
+                    <div class="field-values" v-if="!!computed_rows">
+                        <div class="task-row"
+                             v-for="(row, j) of computed_rows" :key="j">
                             <div class="cell"
                                  :class="[{bordertop: (j===0)}, {borderleft: (i===0)}]"
                                  v-for="(value, i) of row" :key="i">
@@ -16,24 +13,43 @@
                             </div>
                             <div class="cell-sum">
                                 <div class="sum-border"></div>
-                                {{ rowSums[j] }}
+                                {{ computed_rowSums[j] }}
                             </div>
 
                         </div>
 
-                        <div class="row" v-if="!!cols">
+                        <div class="task-row" v-if="!!cols.values">
                             <div class="cell-sum"
-                                 v-for="i of cols.length">
+                                 v-for="item of computed_colSums">
                                 <div class="sum-border"></div>
-                                {{ colSums[i - 1] }}
+                                {{ item }}
 
                             </div>
                         </div>
 
                     </div>
+                    <div class="field-values">
+
+                    </div>
 
                 </div>
+
             </b-row>
+            <b-row>
+                <div class="d-flex col-12">
+                    <b-button size="sm"
+                              variant="secondary"
+                              @click="init">
+                        Init
+                    </b-button>
+                </div>
+            </b-row>
+            <div>
+                <!--                {{ allHsCols }}-->
+            </div>
+            <div>
+                <!--                {{ hsBySumCols }}-->
+            </div>
         </b-container>
     </div>
 </template>
@@ -46,7 +62,16 @@ export default {
     components: {},
     props: [],
     data() {
-        return {};
+        return {
+            rows: [],
+            cols: [],
+            solution: [],
+
+            allHsCols: [],
+            allHsRows: [],
+            hsBySumCols: [],
+            hsBySumRows: [],
+        };
     },
     computed: {
         ...mapState(["currentTask"]),
@@ -54,36 +79,7 @@ export default {
             return this.currentTask;
         },
 
-        rows() {
-            if (!this.game) {
-                return null;
-            }
-            let r = [];
-            for (let j = 0; j < this.game.sizeCols; j++) {
-                let row = [];
-                for (let i = 0; i < this.game.sizeRows; i++) {
-                    row.push(this.game.arrRows[j][i]);
-                }
-                r.push(row);
-            }
-            return r;
-        },
-        rowSums() {
-            if (!this.game) {
-                return null;
-            }
-            let rs = [];
-            for (let j = 0; j < this.game.sizeCols; j++) {
-                let sum = 0;
-                for (let i = 0; i < this.game.sizeRows; i++) {
-                    sum += this.game.arrRows[j][i];
-                }
-                rs.push(sum);
-            }
-            return rs;
-        },
-
-        cols() {
+        computed_cols() {
             if (!this.game) {
                 return null;
             }
@@ -97,7 +93,7 @@ export default {
             }
             return c;
         },
-        colSums() {
+        computed_colSums() {
             if (!this.game) {
                 return null;
             }
@@ -105,24 +101,125 @@ export default {
             for (let i = 0; i < this.game.sizeRows; i++) {
                 let sum = 0;
                 for (let j = 0; j < this.game.sizeCols; j++) {
-                    sum += this.game.arrRows[j][i];
+                    sum += this.game.arrRows[j][i] * this.game.arrAlives[j][i];
+                    ;
                 }
                 cs.push(sum);
             }
             return cs;
         },
 
+        computed_rows() {
+            if (!this.game) {
+                return null;
+            }
+            let r = [];
+            for (let j = 0; j < this.game.sizeCols; j++) {
+                let row = [];
+                for (let i = 0; i < this.game.sizeRows; i++) {
+                    row.push(this.game.arrRows[j][i]);
+                }
+                r.push(row);
+            }
+            return r;
+        },
+        computed_rowSums() {
+            if (!this.game) {
+                return null;
+            }
+            let rs = [];
+            for (let j = 0; j < this.game.sizeCols; j++) {
+                let sum = 0;
+                for (let i = 0; i < this.game.sizeRows; i++) {
+                    sum += this.game.arrRows[j][i] * this.game.arrAlives[j][i];
+                }
+                rs.push(sum);
+            }
+            return rs;
+        },
+
+
     },
     methods: {
         decimalToBitVector(decimal, length) {
-            return Array.from('0'.repeat(length) + decimal.toString(2)).slice(-length);
+            return ('0'.repeat(length) + decimal.toString(2)).slice(-length);
         },
-        dotProductSum(vector, decimal) {
-            return vector.reduce((sum, v, i) => {
-                this.sum += v * ((decimal >> i) & 1)
+        dotProduct(vector, num) {
+            return vector.reduce((sum, v, i) => sum += v * ((num >> i) & 1), 0);
+        },
+        filterBySum(line) {
+            line.hs = line.hs.filter((v) => {
+                return this.dotProduct(line.values, v) === line.sum;
             });
+        },
+
+        init() {
+            if (!this.game) {
+                return null;
+            }
+            let sizeCols = this.game.sizeCols;
+            let sizeRows = this.game.sizeRows;
+
+            this.allHsCols = [];
+            for (let i = 0; i < 2 ** sizeCols; i++) {
+                this.allHsCols.push(i);
+            }
+            this.cols = this.computed_cols.map((v, i) => {
+                return {
+                    values: [...v],
+                    hs: [...this.allHsCols],
+                    sum: this.computed_colSums[i]
+                };
+            });
+
+            if (sizeCols === sizeRows) {
+                this.allHsRows = this.allHsCols;
+            } else {
+                this.allHsRows = [];
+                for (let j = 0; j < 2 ** this.rows.length; j++) {
+                    this.allHsRows.push(j);
+                }
+            }
+            this.rows = this.computed_rows.map((v, i) => {
+                return {
+                    values: [...v],
+                    hs: [...this.allHsRows],
+                    sum: this.computed_rowSums[i]
+                };
+            });
+            this.rows.forEach(v => this.filterBySum(v));
+            this.cols.forEach(v => this.filterBySum(v));
+        },
+
+        calcFilteredHsBySum() {
+            if (this.cols.length) {
+
+                // debugger;
+                this.hsBySumCols = [];
+                for (let i = 0; i < this.cols.length; i++) {
+                    this.hsBySumCols[i] = [];
+                    for (let k = 0; k < this.allHsCols.length; k++) {
+                        console.log(k + ':' + this.decimalToBitVector(k, this.cols.length) + ' ' + ' ' + this.dotProductSum(this.cols[i], this.allHsCols[k]) + ' ' + this.colSums[i]);
+                        if (this.dotProductSum(this.cols[i], this.allHsCols[k]) === this.colSums[i]) {
+                            this.hsBySumCols[i].push(this.allHsCols[k]);
+                        }
+                    }
+                }
+            }
+
+
+            this.hsBySumRows = [];
+            for (let j = 0; j < this.rows.length; j++) {
+                this.hsBySumRows[j] = [];
+                for (let k = 0; k < this.allHsRows.length; k++) {
+                    if (this.dotProductSum(this.rows[j], this.allHsRows[k]) === this.rowSums[j]) {
+                        this.hsBySumRows[j].push(this.allHsRows[k]);
+                    }
+                }
+            }
         }
     },
+
     mounted() {
     },
 }

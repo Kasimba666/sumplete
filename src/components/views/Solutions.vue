@@ -7,24 +7,24 @@
                         <b-dd size="sm"
                               class="size-selector"
                               variant="outline-primary"
-                              :text="newSizeRows.toFixed(0)">
+                              :text="newSizeCols.toFixed(0)">
                             <b-dd-item
                                     v-for="i of sizeRange"
-                                    @click="ddClickSizeHor(i)">
+                                    @click="ddClickSizeCols(i), ddClickSizeRows(i)">
                                 {{ i }}
                             </b-dd-item>
                         </b-dd>
 
-                        <b-dd size="sm"
-                              class="size-selector"
-                              variant="outline-primary"
-                              :text="newSizeCols.toFixed(0)">
-                            <b-dd-item
-                                    v-for="j of sizeRange"
-                                    @click="ddClickSizeVer(j)">
-                                {{ j }}
-                            </b-dd-item>
-                        </b-dd>
+<!--                        <b-dd size="sm"-->
+<!--                              class="size-selector"-->
+<!--                              variant="outline-primary"-->
+<!--                              :text="newSizeRows.toFixed(0)">-->
+<!--                            <b-dd-item-->
+<!--                                    v-for="j of sizeRange"-->
+<!--                                    @click="ddClickSizeRows(j)">-->
+<!--                                {{ j }}-->
+<!--                            </b-dd-item>-->
+<!--                        </b-dd>-->
 
                         <b-button size="sm"
                                   variant="primary"
@@ -165,8 +165,8 @@ export default {
                 g.arrSumRows[j] = 0;
                 this.arrSumAllRows[j] = 0;
                 for (i = 0; i < maxI; i++) {
-                    g.arrRows[j][i] = !!lastGame ? +lastGame.arrRows[j][i] : Math.trunc(Math.random() * maxCellValue);
-                    g.arrAlives[j][i] = !!lastGame ? +lastGame.arrAlives[j][i] : Math.floor(Math.random() + 0.5);
+                    g.arrRows[j][i] = !!lastGame ? +lastGame.arrRows[j][i] : Math.ceil(Math.random() * maxCellValue);
+                    g.arrAlives[j][i] = !!lastGame ? +lastGame.arrAlives[j][i] : Math.round(Math.random());
                     g.arrSumRows[j] += g.arrRows[j][i] * g.arrAlives[j][i];
                     this.arrSumAllRows[j] += g.arrRows[j][i];
                 }
@@ -185,11 +185,11 @@ export default {
             this.$store.commit('currentTask', this.game);
         },
 
-        ddClickSizeHor(v) {
-            this.newSizeRows = v;
-        },
-        ddClickSizeVer(v) {
+        ddClickSizeCols(v) {
             this.newSizeCols = v;
+        },
+        ddClickSizeRows(v) {
+            this.newSizeRows = v;
         },
     },
     mounted() {
@@ -302,7 +302,7 @@ export default {
 
   .field-values {
     width: auto;
-
+    max-width: 500px;
   }
 
   .router-link-exact-active {
