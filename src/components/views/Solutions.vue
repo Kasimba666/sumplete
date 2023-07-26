@@ -7,10 +7,10 @@
                         <b-dd size="sm"
                               class="size-selector"
                               variant="outline-primary"
-                              :text="newSizeCols.toFixed(0)">
+                              :text="newCountCols.toFixed(0)">
                             <b-dd-item
                                     v-for="i of sizeRange"
-                                    @click="ddClickSizeCols(i), ddClickSizeRows(i)">
+                                    @click="ddClickCountCols(i), ddClickCountRows(i)">
                                 {{ i }}
                             </b-dd-item>
                         </b-dd>
@@ -18,10 +18,10 @@
 <!--                        <b-dd size="sm"-->
 <!--                              class="size-selector"-->
 <!--                              variant="outline-primary"-->
-<!--                              :text="newSizeRows.toFixed(0)">-->
+<!--                              :text="newCountRows.toFixed(0)">-->
 <!--                            <b-dd-item-->
 <!--                                    v-for="j of sizeRange"-->
-<!--                                    @click="ddClickSizeRows(j)">-->
+<!--                                    @click="ddClickCountRows(j)">-->
 <!--                                {{ j }}-->
 <!--                            </b-dd-item>-->
 <!--                        </b-dd>-->
@@ -53,7 +53,7 @@
 
                         <div class="task-row" v-if="game.arrSumCols">
                             <div class="cell-sum"
-                                 v-for="i of game.sizeRows">
+                                 v-for="i of game.countRows">
                                 <div class="sum-border"></div>
                                 {{ game.arrSumCols[i - 1] }}
 
@@ -61,7 +61,7 @@
                         </div>
                         <div class="task-row" v-if="game.arrSumCols">
                             <div class="cell-sum"
-                                 v-for="i of game.sizeRows">
+                                 v-for="i of game.countRows">
                                 {{ arrSumAllCols[i - 1] }}
 
                             </div>
@@ -113,12 +113,12 @@ export default {
     data() {
         return {
             sizeRange: [3, 4, 5, 6, 7, 8, 9],
-            newSizeRows: 4,
-            newSizeCols: 4,
+            newCountRows: 4,
+            newCountCols: 4,
 
             game: {
-                sizeRows: 0,
-                sizeCols: 0,
+                countRows: 0,
+                countCols: 0,
                 arrRows: [],
                 arrCols: [],
                 arrSumRows: [],
@@ -136,20 +136,20 @@ export default {
     },
     methods: {
         createNewGame(lastGame) {
-            let maxI = this.newSizeCols;
-            let maxJ = this.newSizeRows;
+            let maxI = this.newCountCols;
+            let maxJ = this.newCountRows;
             let g = {};
             if (!!lastGame) {
-                maxJ = lastGame.sizeCols;
-                maxI = lastGame.sizeRows;
-                g.sizeRows = maxI;
-                g.sizeCols = maxJ;
+                maxJ = lastGame.countCols;
+                maxI = lastGame.countRows;
+                g.countRows = maxI;
+                g.countCols = maxJ;
                 g.arrRows = [...lastGame.arrRows];
                 g.arrCols = [...lastGame.arrCols];
                 g.arrAlives = [...lastGame.arrAlives];
             } else {
-                g.sizeRows = maxI;
-                g.sizeCols = maxJ;
+                g.countRows = maxI;
+                g.countCols = maxJ;
                 g.arrRows = new Array(maxJ);
                 g.arrCols = new Array(maxI);
                 g.arrAlives = new Array(maxJ);
@@ -185,11 +185,11 @@ export default {
             this.$store.commit('currentTask', this.game);
         },
 
-        ddClickSizeCols(v) {
-            this.newSizeCols = v;
+        ddClickCountCols(v) {
+            this.newCountCols = v;
         },
-        ddClickSizeRows(v) {
-            this.newSizeRows = v;
+        ddClickCountRows(v) {
+            this.newCountRows = v;
         },
     },
     mounted() {
