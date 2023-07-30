@@ -83,6 +83,9 @@
       <div>
         Выявленные ячейки: {{ tempCells }}
       </div>
+      <div>
+        Уникальные ячейки: {{ clearedCells }}
+      </div>
 
     </b-container>
   </div>
@@ -105,6 +108,7 @@ export default {
       stateTask: 'created',
       orderList: [],
       tempCells: [],
+      clearedCells: [],
       timer: {
         startValue: 0,
         deltaValue: 0,
@@ -255,17 +259,42 @@ export default {
           // console.log('cols:' + i);
           cellsToFix.push(this.getFixedFromHs(this.cols[i], 'col'));
       }
-      this.tempCells = cellsToFix;
+      console.log(cellsToFix.length);
+      this.tempCells = cellsToFix.flat();
 
-      return cellsToFix;
+      //удалить дубли
+      this.clearedCells = [];
+
+      for (let i = 0; i < this.tempCells.length; i++) {
+        if (!this.clearedCells.includes(this.tempCells[i])) {
+          this.clearedCells.push(this.tempCells[i])
+        }
+      }
+
+      for (let i = 0; i < this.tempCells.length; i++) {
+        let isExist = 0;
+        for (let j = 0; j < this.clearedCells.length; j++) {
+          if (this.clearedCells[j] === this.tempCells[i]) {
+            isExist = 1;
+            break;
+          }
+          if (!isExist) {
+            this.clearedCells.push(this.tempCells[i]);
+          }
+        }
+      };
+
+
+      console.log(this.tempCells.length);
+      console.log(this.clearedCells.length);
+
+      return cellsToFix.flat();
     },
     setSolution() {
       let cells = this.cellsHsEqualBits();
-      // console.log(cells);
-      console.log(cells.length);
+
       for (let q = 0; q < cells.length; q++) {
-        // console.log(cells[q]);
-        // this.solution[cells[q].nrow][cells[q].ncol] = cells[q].value;
+        this.solution[cells[q].nrow][cells[q].ncol] = cells[q].value;
       }
       ;
 
