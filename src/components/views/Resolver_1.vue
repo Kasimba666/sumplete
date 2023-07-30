@@ -81,10 +81,7 @@
         Cols: {{ cols }}
       </div>
       <div>
-        Выявленные ячейки: {{ tempCells }}
-      </div>
-      <div>
-        Уникальные ячейки: {{ clearedCells }}
+        Выявленные ячейки: {{ clearedCellsToFix }}
       </div>
 
     </b-container>
@@ -107,8 +104,7 @@ export default {
       solution: [],
       stateTask: 'created',
       orderList: [],
-      tempCells: [],
-      clearedCells: [],
+      clearedCellsToFix: [],
       timer: {
         startValue: 0,
         deltaValue: 0,
@@ -203,36 +199,40 @@ export default {
     dotProduct(vector, num) {
       return vector.reduce((sum, v, i) => sum += v * ((num >> i) & 1), 0);
     },
+
+ //возвращает массив гипотез, у которых сумма ячеек равна заданной
     filterBySum(line) {
       line.hs = line.hs.filter((v) => {
         return this.dotProduct(line.values, v) === line.sum;
       });
     },
+
+ //возвращает массив гипотез, у которых в заданной позиции находится заданное значение
     filterByPos(line, pos, value) {
       line.hs = line.hs.filter((v) => {
         return ((v >> pos) & 1) == value
       })
     },
 
+//возвращает массив ячеек, значения которых совпадают в гипотезах переданной строки или столбца
     getFixedFromHs(line, direction) {
       let cells = [];
       if (line.hs.length) {
-        console.log(line.values);
+        // console.log(line.values);
         for (let k = 0; k < line.values.length; k++) {
           let bit = (line.hs[0] >> k) & 1;
           let isEqual = 1;
-
-          console.log('позиция ' + k);
-          console.log('гипотеза 0 значение '+ bit);
+          // console.log('позиция ' + k);
+          // console.log('гипотеза 0 значение '+ bit);
           for (let i = 1; i < line.hs.length; i++) {
-            console.log('гипотеза ' + i + ' значение ' + ((line.hs[i] >> k) & 1));
+            // console.log('гипотеза ' + i + ' значение ' + ((line.hs[i] >> k) & 1));
             if (bit != ((line.hs[i] >> k) & 1)) {
               isEqual = 0;
               break;
             }
           }
           if (isEqual) {
-            console.log(bit + ' в позиции ' + k);
+            // console.log(bit + ' в позиции ' + k);
             if (direction === 'row') {
               cells.push({ncol: k, nrow: line.index, value: bit})
             }
@@ -241,14 +241,14 @@ export default {
             }
 
           } else {
-            console.log('не совпали в позиции ' + k);
+            // console.log('не совпали в позиции ' + k);
           }
         }
       }
       return cells;
     },
 
-
+//возвращает массив ячеек, значения которых совпадают для всех гипотез
     cellsHsEqualBits() {
       let cellsToFix = [];
       for (let j = 0; j < this.rows.length; j++) {
@@ -259,37 +259,34 @@ export default {
           // console.log('cols:' + i);
           cellsToFix.push(this.getFixedFromHs(this.cols[i], 'col'));
       }
-      console.log(cellsToFix.length);
-      this.tempCells = cellsToFix.flat();
+        cellsToFix = cellsToFix.flat();
 
       //удалить дубли
-      this.clearedCells = [];
-
-      for (let i = 0; i < this.tempCells.length; i++) {
-        if (!this.clearedCells.includes(this.tempCells[i])) {
-          this.clearedCells.push(this.tempCells[i])
-        }
-      }
-
-      for (let i = 0; i < this.tempCells.length; i++) {
+      this.clearedCellsToFix = [];
+      // for (let i = 0; i < cellsToFix.length; i++) {
+      //   if (!this.clearedCells.includes(cellsToFix[i])) {
+      //     this.clearedCells.push(cellsToFix[i])
+      //   }
+      // }
+      for (let i = 0; i < cellsToFix.length; i++) {
         let isExist = 0;
-        for (let j = 0; j < this.clearedCells.length; j++) {
-          if (this.clearedCells[j] === this.tempCells[i]) {
+        for (let j = 0; j < this.clearedCellsToFix.length; j++) {
+          if (JSON.stringify(this.clearedCellsToFix[j]) === JSON.stringify(cellsToFix[i])) {
             isExist = 1;
             break;
           }
-          if (!isExist) {
-            this.clearedCells.push(this.tempCells[i]);
-          }
+        }
+        if (!isExist) {
+          this.clearedCellsToFix.push(cellsToFix[i]);
         }
       };
+      // console.log(cellsToFix.length);
+      // console.log(this.clearedCellsToFix.length);
 
-
-      console.log(this.tempCells.length);
-      console.log(this.clearedCells.length);
-
-      return cellsToFix.flat();
+      return this.clearedCellsToFix;
     },
+
+//заполняет матрицу решений
     setSolution() {
       let cells = this.cellsHsEqualBits();
 
@@ -352,6 +349,20 @@ export default {
     startTask() {
       this.timer.startTimer();
       this.stateTask = 'inprogress';
+
+
+//Цикл: Взять следующую строку, у которой разница между суммой значений всех ячеек и заданной суммой наименьшая
+//  Цикл: Взять следующую гипотезу для строки
+//    Цикл: Взять следующую ячейку в строке
+//      Если в ячейке есть решение, то окончательно фильтруем гипотезы для столбца
+//
+//      Цикл: Взять следующую гипотезу для столбца из множества, в котором значение ячейки равно текущему значению из гипотезы строки
+//        Цикл: Взять следующую ячейку в столбце
+//        Если в ячейке есть решение, то предварительно фильтруем гипотезы для строки
+
+//Если остаётся одна гипотеза, она и есть решение
+//Как только у гипотезы нет хотя бы по одной перпендикулярной гипотезы, её вычёркиваем
+
     },
 
     abortTask() {
