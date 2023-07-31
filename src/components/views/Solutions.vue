@@ -104,7 +104,7 @@ import Resolver_2 from '@/components/views/Resolver_2.vue';
 import {mapState} from "vuex";
 
 
-const maxCellValue = 9;
+const maxCellValue = 6;
 
 export default {
     name: "Solutions",
@@ -112,7 +112,7 @@ export default {
     props: [],
     data() {
         return {
-            sizeRange: [3, 4, 5, 6, 7, 8, 9],
+            sizeRange: [3, 4, 5, 6, 7, 8, 9, 12],
             newCountRows: 4,
             newCountCols: 4,
 
