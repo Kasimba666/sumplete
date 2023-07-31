@@ -83,6 +83,9 @@
       <div>
         Выявленные ячейки: {{ clearedCellsToFix }}
       </div>
+      <div>
+        Линии: {{ lines }}
+      </div>
 
     </b-container>
   </div>
@@ -101,6 +104,7 @@ export default {
     return {
       rows: [],
       cols: [],
+      lines: [],
       solution: [],
       stateTask: 'created',
       orderList: [],
@@ -200,14 +204,14 @@ export default {
       return vector.reduce((sum, v, i) => sum += v * ((num >> i) & 1), 0);
     },
 
- //возвращает массив гипотез, у которых сумма ячеек равна заданной
+    //возвращает массив гипотез, у которых сумма ячеек равна заданной
     filterBySum(line) {
       line.hs = line.hs.filter((v) => {
         return this.dotProduct(line.values, v) === line.sum;
       });
     },
 
- //возвращает массив гипотез, у которых в заданной позиции находится заданное значение
+    //возвращает массив гипотез, у которых в заданной позиции находится заданное значение
     filterByPos(line, pos, value) {
       line.hs = line.hs.filter((v) => {
         return ((v >> pos) & 1) == value
@@ -256,10 +260,10 @@ export default {
         cellsToFix.push(this.getFixedFromHs(this.rows[j], 'row'));
       }
       for (let i = 0; i < this.cols.length; i++) {
-          // console.log('cols:' + i);
-          cellsToFix.push(this.getFixedFromHs(this.cols[i], 'col'));
+        // console.log('cols:' + i);
+        cellsToFix.push(this.getFixedFromHs(this.cols[i], 'col'));
       }
-        cellsToFix = cellsToFix.flat();
+      cellsToFix = cellsToFix.flat();
 
       //удалить дубли
       this.clearedCellsToFix = [];
@@ -279,7 +283,8 @@ export default {
         if (!isExist) {
           this.clearedCellsToFix.push(cellsToFix[i]);
         }
-      };
+      }
+      ;
       // console.log(cellsToFix.length);
       // console.log(this.clearedCellsToFix.length);
 
@@ -344,6 +349,21 @@ export default {
         }
       }
       this.stateTask = 'prepared';
+
+      //заполнить массив линий
+      this.lines = [];
+      for (let j = 0; j < this.rows.length; j++) {
+        this.lines.push({value: this.rows[j].values, ind: j, type: 'raw', hs: this.rows[j].hs});
+      }
+      for (let i = 0; i < this.cols.length; i++) {
+        this.lines.push({value: this.cols[i].values, ind: i, type: 'col', hs: this.cols[i].hs});
+      }
+      //упорядочить массив линий по количеству гипотез у линии
+      this.lines.sort((i, j) => {
+        return this.lines[i].hs.length - this.lines[j].hs.length
+      });
+
+
     },
 
     startTask() {
@@ -370,8 +390,29 @@ export default {
       this.timer.stopTimer();
       this.stateTask = 'aborted';
     },
+    straightSolve() {
+      //перебор всех строк
+      for (let r0 = 0; r0 < this.rows.length; r0++) {
+        //перебор всех ячеек в строке
+        for (let k = 0; k < this.rows[r0].hs.length; k++) {
+          //ячейка со значением this.rows[r0].hs[k], где x=k, y=r0
+          //перебор всех гипотез столбца c номером k (участвуют все те, у которых значение первой ячейки определено выше)
+          for (let ch0 = 0; ch0 < this.cols[k].hs.length; ch0++) {
+            //перебор всех ячеек в столбце, начиная со второй (поскольку первая относится к первой строке):
+            for (let q = 1; q < this.cols[ch0].hs[q]; q++) {
+              //перебор всех гипотез в строке
+              for (let r1 = 1; r1 < this.rows[q].hs.length; r1++) {
+  //перебор всех ячеек в гипотезе строки
 
+              }
+            }
+          }
+        }
+      }
+    },
+  recursiveSolve() {
 
+},
   },
 
   mounted() {
