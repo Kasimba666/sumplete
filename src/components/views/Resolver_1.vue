@@ -52,14 +52,25 @@
                               size="sm"
                               variant="primary"
                               @click="setSolution">
-                        Fix Hs
+                        Fix Hs by Sum
+                    </b-button>
+
+                  <b-checkbox class="task-btn"
+                              v-model="stepsMode"
+                  >by step
+                  </b-checkbox>
+                    <b-button class="task-btn"
+                              size="sm"
+                              variant="primary"
+                              @click="solve">
+                        Run
                     </b-button>
 
                     <b-button class="task-btn"
                               size="sm"
                               variant="primary"
-                              @click="solve">
-                        Start
+                              @click="nextSolve">
+                        Continue
                     </b-button>
 
                     <b-button class="task-btn"
@@ -74,12 +85,7 @@
                 </div>
 
             </b-row>
-            <!--            <div>-->
-            <!--                Rows: {{ rows }}-->
-            <!--            </div>-->
-            <!--            <div>-->
-            <!--                Cols: {{ cols }}-->
-            <!--            </div>-->
+
             <div>
                 Выявленные ячейки: {{ clearedCellsToFix }}
             </div>
@@ -116,13 +122,16 @@ export default {
             clearedCellsToFix: [],
             timer: {
                 startValue: 0,
+                stopValue: 0,
                 deltaValue: 0,
                 idTimer: 0,
                 state: 'stopped',
 
                 stopTimer() {
-                    clearInterval(this.idTimer);
-                    this.state = 'stopped';
+                  this.state = 'stopped';
+                  clearInterval(this.idTimer);
+                  this.stopValue = Date.now();
+
                 },
                 startTimer() {
                     this.state = 'inprogress';
@@ -132,9 +141,11 @@ export default {
                         this.deltaValue = ((Date.now() - this.startValue) / 1000).toFixed(1);
                     }, timeInterval);
                 },
+
                 pauseTimer() {
                     this.state = 'paused';
                 },
+
 
             }
         }
@@ -396,23 +407,15 @@ export default {
             }
             this.stateTask = 'prepared';
             this.lines = [...this.rows, ...this.cols,];
-            this.lines.sort((a, b) => a.hs.length - b.hs.length);
-            // this.lines = [];
-            // for (let j = 0; j < this.rows.length; j++) {
-            //     this.lines.push({value: this.rows[j].values, ind: j, type: 'raw', hs: this.rows[j].hs});
-            // }
-            // for (let i = 0; i < this.cols.length; i++) {
-            //     this.lines.push({value: this.cols[i].values, ind: i, type: 'col', hs: this.cols[i].hs});
-            // }
-            //упорядочить массив линий по количеству гипотез у линии
-            // this.lines = this.lines.concat(this.lines);
+          //упорядочить массив линий по количеству гипотез у линии
+          this.lines.sort((a, b) => a.hs.length - b.hs.length);
             this.curStep = 0;
 
         },
 
 
-        getFixedPoints(line) {
-
+        allHsSingle() {
+          return !this.lines.reduce((s,v,i) => s += (v.hs.length != 1), 0);
 
         },
 
@@ -436,7 +439,6 @@ export default {
         solveTasks() {
             while (this.taskConveer.length !== 0) {
                 let task = this.taskConveer.shift();
-                console.log(task);
                 this.filterByPos(task.line, task.idx, task.value);
                 this.solveLine(task.line);
             }
@@ -450,39 +452,30 @@ export default {
             this.curStep++;
         },
 
+//отобразить суммы в матрице решений
+      nextSolve() {
+//сделать бэкап lines
+//удалить все lines с единичными гипотезами и упорядочить
+//взять первую
+
+      },
+
         solve() {
+          this.timer.startTimer();
             if (this.stepsMode) {
                 if (this.curStep < this.lines.length) {
                     this.solveStep();
                 } else {
-                    console.error('Решение найдено!');
+                    console.error('Хватит нажимать кнопку!');
                 }
             } else {
                 while (this.curStep < this.lines.length) {
                     this.solveStep();
                 }
-
+              this.curStep = 0;
             }
-        },
-
-        startTask() {
-            this.timer.startTimer();
-            this.stateTask = 'inprogress';
-
-
-//Цикл: Взять следующую строку, у которой разница между суммой значений всех ячеек и заданной суммой наименьшая
-//  Цикл: Взять следующую гипотезу для строки
-//    Цикл: Взять следующую ячейку в строке
-//      Если в ячейке есть решение, то окончательно фильтруем гипотезы для столбца
-//
-//      Цикл: Взять следующую гипотезу для столбца из множества, в котором значение ячейки равно текущему значению из гипотезы строки
-//        Цикл: Взять следующую ячейку в столбце
-//        Если в ячейке есть решение, то предварительно фильтруем гипотезы для строки
-
-//Если остаётся одна гипотеза, она и есть решение
-//Внутрь передаём только подходящие гипотезы под это значение ячейки
-//Как только у гипотезы нет хотя бы по одной перпендикулярной гипотезы, её вычёркиваем
-
+          this.timer.stopTimer();
+          console.log(!this.allHsSingle() ? 'не': '', 'все решения найдены за', this.timer.stopValue - this.timer.startValue, 'мс');
         },
 
         abortTask() {
@@ -509,9 +502,7 @@ export default {
                 }
             }
         },
-        recursiveSolve() {
 
-        },
     },
 
     mounted() {
@@ -526,7 +517,7 @@ export default {
   height: auto;
 
   .task-btn {
-    width: 60px;
+    width: 80px;
     margin: 10px;
     align-items: center;
   }
